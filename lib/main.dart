@@ -1,8 +1,11 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_almightyflippa/core/config/app_theme.dart';
+import 'package:flutter_almightyflippa/features/app/screens/app_decision_screen.dart';
 import 'package:get/get.dart';
-import 'features/auth/presentation/screens/splash_screen.dart';
+import 'core/init/app_initializer.dart';
 
 void main() {
+  AppInitializer.initializeApp();
   runApp(const MyApp());
 }
 
@@ -13,15 +16,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Flutter Demo',
+      title: 'LABBY TV',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const SplashScreen(),
+      theme: AppTheme.dark,
+      
+      home: const AppDecisionScreen(),
     );
   }
 }
-
-
