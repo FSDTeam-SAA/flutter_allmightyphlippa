@@ -4,20 +4,19 @@ import 'setup_repository.dart';
 import 'setup_controllers.dart';
 import 'setup_services.dart';
 
-
-void setupServiceLocator() {
+Future<void> setupServiceLocator() async {
   // Core Services
-  setupCore();
+  await setupCore();
 
   // Repositories
-  setupRepository();
+  await setupRepository();
 
   // Use Cases
   // setupUsecases();
 
   // Controllers
-  setupControllers();
+  await setupControllers();
 
   // Services
-  setupServices();
+  await setupServices();
 }
