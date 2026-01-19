@@ -5,7 +5,9 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart' hide FormData;
 
+import '../../features/auth/screens/login_screen.dart';
 import '../common/models/base_response.dart';
 import '../common/models/network_failure.dart';
 import '../common/models/network_success.dart';
@@ -142,7 +144,7 @@ class ApiClient {
 
       // Delay navigation slightly to ensure UI is ready
       await Future.delayed(Duration.zero);
-      // Get.offAll(() => LoginScreen(), transition: Transition.leftToRight);
+      Get.offAll(() => LoginScreen(), transition: Transition.leftToRight);
     } catch (e) {
       DPrint.error("Logout error: $e");
     }
