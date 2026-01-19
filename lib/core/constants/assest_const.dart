@@ -18,4 +18,10 @@ class Images {
 class Icons {
   static const String _base = 'assets/icons';
   final String bases = _base;
+
+  final String home = '$_base/home.svg';
+  final String playSquare = '$_base/play-square.svg';
+  final String movieOutline = '$_base/movie-outline.svg';
+  final String series = '$_base/series.svg';
+  final String userCircle = '$_base/user-circle.svg';
 }
