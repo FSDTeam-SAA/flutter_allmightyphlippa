@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_almightyflippa/core/constants/app_colors.dart';
 import 'package:get/get.dart';
 
+import '../../playlist/models/server_request_model.dart';
 import '../../video/screens/video_play_screen.dart';
 import '../controllers/movie_controller.dart';
 
@@ -191,7 +192,10 @@ class _MovieScreenState extends State<MovieScreen> {
                           child: InkWell(
                             onTap: () {
                               Get.to(
-                                () => VideoPlayScreen(streamId: movie.streamId),
+                                () => VideoPlayScreen(
+                                  streamId: movie.streamId,
+                                  type: ServerType.movies,
+                                ),
                               );
                             },
                             child: Row(

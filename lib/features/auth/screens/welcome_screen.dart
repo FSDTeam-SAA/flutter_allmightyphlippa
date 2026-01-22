@@ -19,7 +19,7 @@ class WelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final PageController pageController = PageController();
     final ValueNotifier<int> currentPage = ValueNotifier<int>(0);
-    final SecureStoreServices _secureStore = SecureStoreServices();
+    final SecureStoreServices secureStore = SecureStoreServices();
 
     // Update current page for dots and parallax
     pageController.addListener(() {
@@ -176,7 +176,7 @@ class WelcomeScreen extends StatelessWidget {
             bottom: 60.0, // Adjust if needed for safe area or design
             child: PrimaryButton(
               onSimplePressed: () async {
-                await _secureStore.storeData(
+                await secureStore.storeData(
                   KeyConstants.onboardingStatus,
                   'true',
                 );

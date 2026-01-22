@@ -29,52 +29,54 @@ class BottomNavScreen extends StatelessWidget {
     return AppScaffold(
       removePadding: true,
       body: Obx(() => pages[controller.selectedIndex.value]),
-      bottomNavigationBar: Obx(
-        () => Container(
-          height: 70,
-          decoration: const BoxDecoration(
-            color: AppColors.primaryBlack,
-            border: Border(
-              top: BorderSide(color: Color(0xFF272727), width: 0.5),
+      bottomNavigationBar: Obx(() {
+        return SafeArea(
+          child: Container(
+            height: 70,
+            decoration: const BoxDecoration(
+              color: AppColors.primaryBlack,
+              border: Border(
+                top: BorderSide(color: Color(0xFF272727), width: 0.5),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildNavItem(
+                  index: 0,
+                  icon: AssetsConstants.icons.home,
+                  label: 'Home',
+                  controller: controller,
+                ),
+                _buildNavItem(
+                  index: 1,
+                  icon: AssetsConstants.icons.playSquare,
+                  label: 'Live TV',
+                  controller: controller,
+                ),
+                _buildNavItem(
+                  index: 2,
+                  icon: AssetsConstants.icons.movieOutline,
+                  label: 'Movies',
+                  controller: controller,
+                ),
+                _buildNavItem(
+                  index: 3,
+                  icon: AssetsConstants.icons.series,
+                  label: 'Series',
+                  controller: controller,
+                ),
+                _buildNavItem(
+                  index: 4,
+                  icon: AssetsConstants.icons.userCircle,
+                  label: 'My Profile',
+                  controller: controller,
+                ),
+              ],
             ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(
-                index: 0,
-                icon: AssetsConstants.icons.home,
-                label: 'Home',
-                controller: controller,
-              ),
-              _buildNavItem(
-                index: 1,
-                icon: AssetsConstants.icons.playSquare,
-                label: 'Live TV',
-                controller: controller,
-              ),
-              _buildNavItem(
-                index: 2,
-                icon: AssetsConstants.icons.movieOutline,
-                label: 'Movies',
-                controller: controller,
-              ),
-              _buildNavItem(
-                index: 3,
-                icon: AssetsConstants.icons.series,
-                label: 'Series',
-                controller: controller,
-              ),
-              _buildNavItem(
-                index: 4,
-                icon: AssetsConstants.icons.userCircle,
-                label: 'My Profile',
-                controller: controller,
-              ),
-            ],
-          ),
-        ),
-      ),
+        );
+      }),
     );
   }
 

@@ -1,13 +1,19 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_almightyflippa/core/constants/app_colors.dart';
+import 'package:flutter_almightyflippa/features/playlist/models/server_request_model.dart';
+import '/core/constants/app_colors.dart';
 import 'package:get/get.dart';
 
 import '../controllers/video_play_controller.dart';
 
 class VideoPlayScreen extends StatefulWidget {
   final int streamId;
-  const VideoPlayScreen({super.key, required this.streamId});
+  final ServerType type;
+  const VideoPlayScreen({
+    super.key,
+    required this.streamId,
+    required this.type,
+  });
 
   @override
   State<VideoPlayScreen> createState() => _VideoPlayScreenState();
@@ -20,9 +26,9 @@ class _VideoPlayScreenState extends State<VideoPlayScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.getMovieDetails(streamId: widget.streamId);
+      controller.initializeVideo(type: widget.type, streamId: widget.streamId);
     });
-    }
+  }
 
   @override
   void dispose() {
@@ -37,13 +43,11 @@ class _VideoPlayScreenState extends State<VideoPlayScreen> {
       backgroundColor: AppColors.primaryBlack,
       body: SafeArea(
         child: Obx(() {
-          if (controller.movieCtrl.isLoading.value) {
+          if (controller.isLoading.value) {
             return const Center(
               child: CircularProgressIndicator(color: AppColors.red),
             );
           }
-
-          final movie = controller.movieCtrl.movie.value;
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,10 +73,7 @@ class _VideoPlayScreenState extends State<VideoPlayScreen> {
                   Positioned(
                     top: 10,
                     left: 10,
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () => Get.back(),
-                    ),
+                    child: BackButton(color: Colors.white),
                   ),
                   Positioned(
                     top: 10,
@@ -88,82 +89,74 @@ class _VideoPlayScreenState extends State<VideoPlayScreen> {
               ),
 
               // Title and Info
-              if (movie != null) ...[
-                // Progress Bar (Video Player handles this usually, but mockup had one)
-                // Chewie has built-in controls.
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          movie.streamData.info.name,
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '${movie.streamData.movieData.added} | Movie | ${movie.streamData.info.duration}',
-                          style: const TextStyle(
-                            color: AppColors.primaryGray,
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          movie.streamData.info.description.isNotEmpty
-                              ? movie.streamData.info.description
-                              : (movie.streamData.info.plot.isNotEmpty
-                                    ? movie.streamData.info.plot
-                                    : 'No description available'),
-                          style: const TextStyle(
-                            color: AppColors.primaryGray,
-                            fontSize: 14,
-                            height: 1.5,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        GestureDetector(
-                          onTap: () {
-                            // Toggle expand description if needed
-                          },
-                          child: const Text(
-                            'See More',
-                            style: TextStyle(
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        controller.title,
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        controller.subTitle,
+                        style: const TextStyle(
+                          color: AppColors.primaryGray,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        controller.description,
+                        style: const TextStyle(
+                          color: AppColors.primaryGray,
+                          fontSize: 14,
+                          height: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      GestureDetector(
+                        onTap: () {
+                          // Toggle expand description if needed
+                        },
+                        child: const Text(
+                          'See More',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
+                      ),
 
-                        const SizedBox(height: 30),
-                        Center(
-                          child: Column(
-                            children: [
-                              IconButton(
-                                onPressed: () {},
-                                icon: const Icon(
-                                  Icons.favorite_border,
-                                  color: Colors.white,
-                                ),
-                                iconSize: 30,
+                      const SizedBox(height: 30),
+                      Center(
+                        child: Column(
+                          children: [
+                            IconButton(
+                              onPressed: () {},
+                              icon: const Icon(
+                                Icons.favorite_border,
+                                color: Colors.white,
                               ),
-                              const Text(
-                                "Favourite",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ],
-                          ),
+                              iconSize: 30,
+                            ),
+                            const Text(
+                              "Favourite",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ],
           );
         }),
