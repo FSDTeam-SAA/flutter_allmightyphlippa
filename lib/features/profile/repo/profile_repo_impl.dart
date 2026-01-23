@@ -12,10 +12,11 @@ class ProfileRepoImpl implements ProfileRepo {
   ProfileRepoImpl({required this.apiClient});
 
   @override
-  NetworkStream<UserModel> getProfile() {
+  NetworkStream<UserModel> getProfile({bool forceRefresh = false}) {
     return apiClient.getStream<UserModel>(
       endpoint: ApiConstants.user.profile,
       cacheDuration: const Duration(days: 30),
+      forceEmitRemote: forceRefresh,
       fromJsonT: (json) => UserModel.fromJson(json),
     );
   }

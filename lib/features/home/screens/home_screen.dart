@@ -8,6 +8,10 @@ import 'package:flutter_almightyflippa/features/video/screens/video_play_screen.
 import 'package:get/get.dart';
 
 import '../../playlist/models/server_request_model.dart';
+import 'package:flutter_almightyflippa/core/constants/assest_const.dart'
+    hide Icons;
+
+import '../../profile/controller/profile_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final homeCtrl = Get.put(HomeController());
   final movieCtrl = Get.find<MovieController>();
   final seriesCtrl = Get.find<SeriesController>();
+  final profileCtrl = Get.put(ProfileController());
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +38,8 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _buildHeader(),
+
               const SizedBox(height: 20),
               _buildSectionHeader(context, 'Popular Movies', () {
                 Get.find<BottomNavController>().changeIndex(2);
@@ -47,6 +54,66 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.asset(
+                  AssetsConstants.images.logo,
+                  height: 45,
+                  width: 45,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.flash_on, color: Colors.amber, size: 40),
+                ),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.notifications_none_outlined,
+                  color: AppColors.primaryWhite,
+                  size: 28,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Obx(() {
+            if (profileCtrl.isLoading.value) {
+              return Container(
+                height: 24,
+                width: 250,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryGray.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              );
+            }
+            // Get first name for "Hello Ross" style if possible, or just use full name as requested "Hello Ross" (assuming name is Ross)
+            // The request image shows "Hello Ross, Welcome to LABBY app"
+            // I'll just use the full name for now.
+            final name = profileCtrl.userProfile.value?.name ?? "Guest";
+            return Text(
+              'Hello $name, Welcome to LABBY app',
+              style: const TextStyle(
+                color: AppColors.primaryWhite,
+                fontSize: 18,
+                fontWeight: FontWeight.w400,
+              ),
+            );
+          }),
+        ],
       ),
     );
   }

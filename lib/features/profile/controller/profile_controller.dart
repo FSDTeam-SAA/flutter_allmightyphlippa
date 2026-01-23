@@ -1,15 +1,14 @@
-import 'package:flutx_core/core/debug_print.dart';
 import 'package:get/get.dart';
+import '../../../core/api/network_stream.dart';
 import '../../../core/services/auth_storage_service.dart';
 import '../../auth/models/user_response_model.dart';
 import '../../auth/screens/login_screen.dart';
 import '../repo/profile_repo.dart';
 
 class ProfileController extends GetxController {
-  final ProfileRepo _profileRepo;
-  final AuthStorageService _authStorageService;
+  final _profileRepo = Get.find<ProfileRepo>();
+  final AuthStorageService _authStorageService = AuthStorageService();
 
-  ProfileController(this._profileRepo, this._authStorageService);
 
   final Rxn<UserModel> userProfile = Rxn<UserModel>();
   final RxBool isLoading = false.obs;
@@ -20,31 +19,10 @@ class ProfileController extends GetxController {
     getProfile();
   }
 
-  Future<void> getProfile() async {
-    isLoading.value = true;
-    _profileRepo.getProfile().listen(
-      (result) {
-        result.fold(
-          (failure) {
-            DPrint.error("Error fetching profile: ${failure.message}");
-          },
-          (success) {
-            userProfile.value = success.data;
-          },
-        );
-        // Only set loading to false after we get some data (cache or remote)
-        // or if we want it to stay loading until remote finishes, keep it true.
-        // Usually, if we have cache, we want loading to be false.
-        if (userProfile.value != null || result.isLeft()) {
-          isLoading.value = false;
-        }
-      },
-      onDone: () => isLoading.value = false,
-      onError: (e) {
-        DPrint.error("Stream error: $e");
-        isLoading.value = false;
-      },
-    );
+  Future<void> getProfile({bool isRefresh = false}) async {
+    return _profileRepo
+        .getProfile(forceRefresh: isRefresh)
+        .bind(rx: userProfile, loading: isLoading);
   }
 
   Future<void> logout() async {

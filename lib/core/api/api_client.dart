@@ -16,6 +16,7 @@ import '../constants/api_constants.dart';
 import '../services/api_cache_service.dart';
 import '../services/auth_storage_service.dart';
 import '../services/connectivity_service.dart';
+import '../services/request_queue_service.dart';
 import 'dio_error_handler.dart';
 import 'package:flutx_core/core/debug_print.dart';
 
@@ -319,6 +320,7 @@ class ApiClient {
     Map<String, dynamic>? queryParameters,
     Options? options,
     Duration? cacheDuration,
+    bool forceEmitRemote = false,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
@@ -379,9 +381,9 @@ class ApiClient {
         isUpdated = _isDataUpdated(cachedRawData, remoteRawData);
       }
 
-      if (isUpdated || cachedRawData == null) {
+      if (isUpdated || cachedRawData == null || forceEmitRemote) {
         DPrint.info(
-          'Serving remote data stream for $endpoint (Updated: $isUpdated)',
+          'Serving remote data stream for $endpoint (Updated: $isUpdated, Forced: $forceEmitRemote)',
         );
         yield Right(success);
       } else {
@@ -442,6 +444,7 @@ class ApiClient {
     Options? options,
     CancelToken? cancelToken,
     Duration? cacheDuration,
+    bool forceEmitRemote = false,
     ProgressCallback? onReceiveProgress,
   }) => _streamRequest(
     method: 'GET',
@@ -451,9 +454,25 @@ class ApiClient {
     options: options,
     cancelToken: cancelToken,
     cacheDuration: cacheDuration,
+    forceEmitRemote: forceEmitRemote,
     onReceiveProgress: onReceiveProgress,
   );
 
+  /// Generic request method for background/queued requests where type doesn't matter
+  Future<Either<NetworkFailure, NetworkSuccess<dynamic>>> requestGeneric({
+    required String method,
+    required String endpoint,
+    dynamic data,
+  }) async {
+    return _request<dynamic>(
+      method: method,
+      endpoint: endpoint,
+      fromJsonT: (json) => json,
+      data: data,
+    );
+  }
+
+  /// Updated mutation methods with queuing support
   Future<Either<NetworkFailure, NetworkSuccess<T>>> post<T>({
     required String endpoint,
     dynamic data,
@@ -463,7 +482,20 @@ class ApiClient {
     ProgressCallback? onSendProgress,
     FormData? formData,
     List<String>? invalidatePaths,
+    bool useQueue = false,
   }) async {
+    final connectivity = await _checkConnectivity();
+    if (connectivity.isLeft() && useQueue) {
+      Get.find<RequestQueueService>().addToQueue(
+        method: 'POST',
+        endpoint: endpoint,
+        data: data,
+      );
+      return const Left(
+        NoInternetFailure(),
+      ); // We return failure but it's queued
+    }
+
     final result = await _request(
       method: 'POST',
       endpoint: endpoint,
@@ -492,7 +524,18 @@ class ApiClient {
     CancelToken? cancelToken,
     FormData? formData,
     List<String>? invalidatePaths,
+    bool useQueue = false,
   }) async {
+    final connectivity = await _checkConnectivity();
+    if (connectivity.isLeft() && useQueue) {
+      Get.find<RequestQueueService>().addToQueue(
+        method: 'PATCH',
+        endpoint: endpoint,
+        data: data,
+      );
+      return const Left(NoInternetFailure());
+    }
+
     final result = await _request(
       method: 'PATCH',
       endpoint: endpoint,
@@ -520,7 +563,18 @@ class ApiClient {
     CancelToken? cancelToken,
     FormData? formData,
     List<String>? invalidatePaths,
+    bool useQueue = false,
   }) async {
+    final connectivity = await _checkConnectivity();
+    if (connectivity.isLeft() && useQueue) {
+      Get.find<RequestQueueService>().addToQueue(
+        method: 'PUT',
+        endpoint: endpoint,
+        data: data,
+      );
+      return const Left(NoInternetFailure());
+    }
+
     final result = await _request(
       method: 'PUT',
       endpoint: endpoint,
@@ -548,7 +602,18 @@ class ApiClient {
     CancelToken? cancelToken,
     FormData? formData,
     List<String>? invalidatePaths,
+    bool useQueue = false,
   }) async {
+    final connectivity = await _checkConnectivity();
+    if (connectivity.isLeft() && useQueue) {
+      Get.find<RequestQueueService>().addToQueue(
+        method: 'DELETE',
+        endpoint: endpoint,
+        data: data,
+      );
+      return const Left(NoInternetFailure());
+    }
+
     final result = await _request(
       method: 'DELETE',
       endpoint: endpoint,

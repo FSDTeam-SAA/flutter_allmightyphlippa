@@ -23,6 +23,11 @@ class ConnectivityService {
       StreamController<bool>.broadcast();
   Stream<bool> get connectivityStream => _connectivityController.stream;
 
+  /// Stream that emits only when the device reconnects to the internet
+  Stream<void> get onReconnected => _connectivityController.stream
+      .where((connected) => connected)
+      .map((_) {});
+
   /// Initialize connectivity monitoring
   Future<void> initialize() async {
     DPrint.info('Initializing ConnectivityService');
