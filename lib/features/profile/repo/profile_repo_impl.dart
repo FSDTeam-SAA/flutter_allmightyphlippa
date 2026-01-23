@@ -1,3 +1,5 @@
+import 'package:flutter_almightyflippa/core/api/network_result.dart';
+
 import '../../../core/api/api_client.dart';
 import '../../../core/api/network_stream.dart';
 import '../../../core/constants/api_constants.dart';
@@ -15,6 +17,17 @@ class ProfileRepoImpl implements ProfileRepo {
       endpoint: ApiConstants.user.profile,
       cacheDuration: const Duration(days: 30),
       fromJsonT: (json) => UserModel.fromJson(json),
+    );
+  }
+
+  @override
+  NetworkResult<UserModel> updateProfile(Map<String, dynamic> data) async {
+    return await apiClient.patch<UserModel>(
+      endpoint: ApiConstants.user.profile,
+      data: data,
+      fromJsonT: (json) => UserModel.fromJson(json),
+      // v--- ADD THIS TO CLEAR THE CACHE ---v
+      invalidatePaths: [ApiConstants.user.profile],
     );
   }
 }

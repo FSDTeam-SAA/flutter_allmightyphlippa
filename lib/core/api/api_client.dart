@@ -462,16 +462,27 @@ class ApiClient {
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     FormData? formData,
-  }) => _request(
-    method: 'POST',
-    endpoint: endpoint,
-    fromJsonT: fromJsonT,
-    data: data,
-    options: options,
-    cancelToken: cancelToken,
-    onSendProgress: onSendProgress,
-    fromData: formData,
-  );
+    List<String>? invalidatePaths,
+  }) async {
+    final result = await _request(
+      method: 'POST',
+      endpoint: endpoint,
+      fromJsonT: fromJsonT,
+      data: data,
+      options: options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      fromData: formData,
+    );
+
+    if (result.isRight() && invalidatePaths != null) {
+      for (final path in invalidatePaths) {
+        await _cacheService.clearCache(path);
+      }
+    }
+
+    return result;
+  }
 
   Future<Either<NetworkFailure, NetworkSuccess<T>>> patch<T>({
     required String endpoint,
@@ -480,15 +491,26 @@ class ApiClient {
     Options? options,
     CancelToken? cancelToken,
     FormData? formData,
-  }) => _request(
-    method: 'PATCH',
-    endpoint: endpoint,
-    fromJsonT: fromJsonT,
-    data: data,
-    options: options,
-    cancelToken: cancelToken,
-    fromData: formData,
-  );
+    List<String>? invalidatePaths,
+  }) async {
+    final result = await _request(
+      method: 'PATCH',
+      endpoint: endpoint,
+      fromJsonT: fromJsonT,
+      data: data,
+      options: options,
+      cancelToken: cancelToken,
+      fromData: formData,
+    );
+
+    if (result.isRight() && invalidatePaths != null) {
+      for (final path in invalidatePaths) {
+        await _cacheService.clearCache(path);
+      }
+    }
+
+    return result;
+  }
 
   Future<Either<NetworkFailure, NetworkSuccess<T>>> put<T>({
     required String endpoint,
@@ -497,15 +519,26 @@ class ApiClient {
     Options? options,
     CancelToken? cancelToken,
     FormData? formData,
-  }) => _request(
-    method: 'PUT',
-    endpoint: endpoint,
-    fromJsonT: fromJsonT,
-    data: data,
-    options: options,
-    cancelToken: cancelToken,
-    fromData: formData,
-  );
+    List<String>? invalidatePaths,
+  }) async {
+    final result = await _request(
+      method: 'PUT',
+      endpoint: endpoint,
+      fromJsonT: fromJsonT,
+      data: data,
+      options: options,
+      cancelToken: cancelToken,
+      fromData: formData,
+    );
+
+    if (result.isRight() && invalidatePaths != null) {
+      for (final path in invalidatePaths) {
+        await _cacheService.clearCache(path);
+      }
+    }
+
+    return result;
+  }
 
   Future<Either<NetworkFailure, NetworkSuccess<T>>> delete<T>({
     required String endpoint,
@@ -514,15 +547,26 @@ class ApiClient {
     Options? options,
     CancelToken? cancelToken,
     FormData? formData,
-  }) => _request(
-    method: 'DELETE',
-    endpoint: endpoint,
-    fromJsonT: fromJsonT,
-    data: data,
-    options: options,
-    cancelToken: cancelToken,
-    fromData: formData,
-  );
+    List<String>? invalidatePaths,
+  }) async {
+    final result = await _request(
+      method: 'DELETE',
+      endpoint: endpoint,
+      fromJsonT: fromJsonT,
+      data: data,
+      options: options,
+      cancelToken: cancelToken,
+      fromData: formData,
+    );
+
+    if (result.isRight() && invalidatePaths != null) {
+      for (final path in invalidatePaths) {
+        await _cacheService.clearCache(path);
+      }
+    }
+
+    return result;
+  }
 
   /// Helper Methods
   Future<Options> _addAuthHeader(Options? options) async {

@@ -69,7 +69,12 @@ class _AppDecisionScreenState extends State<AppDecisionScreen> {
       body: Center(
         child: Container(
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(22)),
-          child: AppLogo(images: AssetsConstants.images.logo, borderRadius: 22),
+          child: AppLogo(
+            height: 120,
+            width: 120,
+            images: AssetsConstants.images.logo,
+            borderRadius: 22,
+          ),
         ),
       ),
     );
