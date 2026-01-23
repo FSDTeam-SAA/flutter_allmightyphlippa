@@ -1,10 +1,15 @@
 import 'package:flutter_almightyflippa/features/movie/controllers/movie_controller.dart';
+import 'package:flutter_almightyflippa/features/series/controllers/series_controller.dart';
 import 'package:get/get.dart';
 
 class HomeController extends GetxController {
-  final _homeRepo = Get.put(MovieController());
+  final _movieController = Get.find<MovieController>();
+  final _seriesController = Get.find<SeriesController>();
 
-  Future<void> getMovies() async {
-    await _homeRepo.getMovies();
+  Future<void> refreshData() async {
+    await Future.wait([
+      _movieController.getMovies(),
+      _seriesController.getSeries(),
+    ]);
   }
 }
