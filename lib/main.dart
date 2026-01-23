@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       title: 'LABBY TV',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
-      
+
       home: const AppDecisionScreen(),
     );
   }

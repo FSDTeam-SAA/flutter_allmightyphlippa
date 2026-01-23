@@ -1,5 +1,5 @@
 name: flutter_almightyflippa
-description: "A new Flutter project."
+description: "LABBY"
 publish_to: "none"
 version: 1.0.0+1
 
@@ -32,17 +32,42 @@ dependencies:
   intl: ^0.20.2
   flutter_svg: ^2.2.3
   cached_network_image: ^3.4.1
+  
+  # Video
   video_player: ^2.10.1
   chewie: ^1.13.0
   media_kit: ^1.1.10
   media_kit_video: ^1.2.4
   media_kit_libs_video: ^1.0.4
 
+  # Icons for app
+  flutter_launcher_icons: ^0.14.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^5.0.0
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/splash_and_login_logo.png"
+  # adaptive_icon_background: "#db1f12"
+  # adaptive_icon_foreground: "assets/images/splash_and_login_logo.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "assets/images/splash_and_login_logo.png"
+    background_color: "#111111"
+    theme_color: "#111111"
+  windows:
+    generate: true
+    image_path: "assets/images/splash_and_login_logo.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/images/splash_and_login_logo.png"
 
 
 flutter:
