@@ -1,6 +1,7 @@
 class ApiConstants {
   /// [Base Configuration]
-  static const String baseDomain = 'http://10.10.5.48:5001'; // Noyon Office
+  // static const String baseDomain = 'http://10.10.5.48:5000'; // Noyon Office
+  static const String baseDomain = 'http://192.168.0.218:5000'; // Noyon Office
   static const String baseUrl = '$baseDomain/api/v1';
 
   /// Dynamically generated WebSocket URL based on baseDomain

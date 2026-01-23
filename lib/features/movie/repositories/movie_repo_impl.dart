@@ -41,7 +41,7 @@ class MovieRepoImpl implements MovieRepo {
   }) async {
     final storage = AuthStorageService();
     final requestData = await SingleStreamRequestModel.fromStorage(
-      streamType: ServerType.movies,
+      streamType: ServerType.movie,
       streamId: streamId,
       storage: storage,
     );

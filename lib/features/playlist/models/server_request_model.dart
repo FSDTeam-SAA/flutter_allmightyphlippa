@@ -1,7 +1,7 @@
 import '../../../core/services/auth_storage_service.dart';
 import 'playlist_data.dart';
 
-enum ServerType { movies, series, channels }
+enum ServerType { movies, movie, series, channels }
 
 class ServerRequestModel {
   final String serverUrl;

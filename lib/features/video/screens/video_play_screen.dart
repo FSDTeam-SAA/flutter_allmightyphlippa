@@ -1,6 +1,6 @@
-import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_almightyflippa/features/playlist/models/server_request_model.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 import '/core/constants/app_colors.dart';
 import 'package:get/get.dart';
 
@@ -59,10 +59,9 @@ class _VideoPlayScreenState extends State<VideoPlayScreen> {
                     aspectRatio: 16 / 9,
                     child: Container(
                       color: Colors.black,
-                      child:
-                          controller.isVideoInitialized.value &&
-                              controller.chewieController != null
-                          ? Chewie(controller: controller.chewieController!)
+
+                      child: controller.isVideoInitialized.value
+                          ? Video(controller: controller.videoController)
                           : const Center(
                               child: CircularProgressIndicator(
                                 color: AppColors.red,
