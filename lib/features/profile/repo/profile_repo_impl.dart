@@ -13,6 +13,8 @@ class ProfileRepoImpl implements ProfileRepo {
   NetworkResult<UserModel> getProfile() async {
     return await apiClient.get<UserModel>(
       endpoint: ApiConstants.user.profile,
+      cache: true,
+      cacheDuration: const Duration(days: 30),
       fromJsonT: (json) => UserModel.fromJson(json),
     );
   }
