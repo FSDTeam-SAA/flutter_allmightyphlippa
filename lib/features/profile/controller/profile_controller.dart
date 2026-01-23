@@ -22,17 +22,29 @@ class ProfileController extends GetxController {
 
   Future<void> getProfile() async {
     isLoading.value = true;
-    final result = await _profileRepo.getProfile();
-    result.fold(
-      (failure) {
-        // Handle failure if needed, for now just log
-        DPrint.error("Error fetching profile: ${failure.message}");
+    _profileRepo.getProfile().listen(
+      (result) {
+        result.fold(
+          (failure) {
+            DPrint.error("Error fetching profile: ${failure.message}");
+          },
+          (success) {
+            userProfile.value = success.data;
+          },
+        );
+        // Only set loading to false after we get some data (cache or remote)
+        // or if we want it to stay loading until remote finishes, keep it true.
+        // Usually, if we have cache, we want loading to be false.
+        if (userProfile.value != null || result.isLeft()) {
+          isLoading.value = false;
+        }
       },
-      (success) {
-        userProfile.value = success.data;
+      onDone: () => isLoading.value = false,
+      onError: (e) {
+        DPrint.error("Stream error: $e");
+        isLoading.value = false;
       },
     );
-    isLoading.value = false;
   }
 
   Future<void> logout() async {

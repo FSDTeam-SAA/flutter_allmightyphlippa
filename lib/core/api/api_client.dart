@@ -1,6 +1,7 @@
 // lib/core/network/api_client.dart
 
 import 'dart:async';
+import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 
@@ -167,7 +168,6 @@ class ApiClient {
     FormData? fromData,
     Map<String, dynamic>? queryParameters,
     Options? options,
-    bool cache = false,
     Duration? cacheDuration,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -176,9 +176,10 @@ class ApiClient {
     await _initCompleter.future;
 
     final bool isGet = method.toUpperCase() == 'GET';
+    final bool cache = isGet && cacheDuration != null;
     final connectivityCheck = await _checkConnectivity();
     if (connectivityCheck.isLeft()) {
-      if (isGet && cache) {
+      if (cache) {
         final cachedData = await _cacheService.getCachedData(
           endpoint,
           requestData: queryParameters,
@@ -191,6 +192,7 @@ class ApiClient {
               data: fromJsonT(cachedData),
               message: 'Served from cache (offline)',
               statusCode: 200,
+              isFromCache: true,
             ),
           );
         }
@@ -248,7 +250,7 @@ class ApiClient {
         );
 
         // 4. Cache the fresh response if it's a cached GET request
-        if (isGet && cache) {
+        if (cache) {
           final rawResponseData = response.data as Map<String, dynamic>?;
           final dataToCache = rawResponseData?['data'];
 
@@ -286,8 +288,6 @@ class ApiClient {
               queryParameters: queryParameters,
               options: options,
               cancelToken: cancelToken,
-              cache: cache,
-              cacheDuration: cacheDuration,
               onSendProgress: onSendProgress,
               onReceiveProgress: onReceiveProgress,
             );
@@ -309,6 +309,112 @@ class ApiClient {
     }
   }
 
+  /// Stream-based request method for "Cache-first then Remote"
+  Stream<Either<NetworkFailure, NetworkSuccess<T>>> _streamRequest<T>({
+    required String method,
+    required String endpoint,
+    required T Function(dynamic) fromJsonT,
+    dynamic data,
+    FormData? fromData,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    Duration? cacheDuration,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async* {
+    await _initCompleter.future;
+
+    final bool isGet = method.toUpperCase() == 'GET';
+    final bool cache = isGet && cacheDuration != null;
+    dynamic cachedRawData;
+
+    // 1. Emit cached data if available
+    if (cache) {
+      cachedRawData = await _cacheService.getCachedData(
+        endpoint,
+        requestData: queryParameters,
+      );
+
+      if (cachedRawData != null) {
+        DPrint.info('Serving cached data stream for $endpoint');
+        yield Right(
+          NetworkSuccess<T>(
+            data: fromJsonT(cachedRawData),
+            message: 'Served from cache',
+            statusCode: 200,
+            isFromCache: true,
+          ),
+        );
+      }
+    }
+
+    // 2. Perform network request
+    final result = await _request<T>(
+      method: method,
+      endpoint: endpoint,
+      fromJsonT: fromJsonT,
+      data: data,
+      fromData: fromData,
+      queryParameters: queryParameters,
+      options: options,
+      cacheDuration: cacheDuration,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    if (result.isRight()) {
+      final success = result.getOrElse(
+        () => throw Exception("Should not happen"),
+      );
+      final remoteRawData = (await _cacheService.getCachedData(
+        endpoint,
+        requestData: queryParameters,
+      )); // Get what was just cached in _request
+
+      // logic to check if data is updated
+      bool isUpdated = true;
+      if (cachedRawData != null && remoteRawData != null) {
+        isUpdated = _isDataUpdated(cachedRawData, remoteRawData);
+      }
+
+      if (isUpdated || cachedRawData == null) {
+        DPrint.info(
+          'Serving remote data stream for $endpoint (Updated: $isUpdated)',
+        );
+        yield Right(success);
+      } else {
+        DPrint.info(
+          'Remote data is same as cache for $endpoint, skipping emission',
+        );
+      }
+    } else {
+      // If error but we already showed cache, we might want to just stop or show error
+      // The user said: "if any problem in remote data ... try to show the remote data first"
+      // Wait, if there's a problem, we can't show remote data.
+      // I'll yield the failure so the UI can handle it (e.g. snackbar) while still showing cache.
+      yield result;
+    }
+  }
+
+  bool _isDataUpdated(dynamic oldData, dynamic newData) {
+    try {
+      if (oldData is Map && newData is Map) {
+        // Check updatedAt if available
+        final oldUpdate = oldData['updatedAt'];
+        final newUpdate = newData['updatedAt'];
+        if (oldUpdate != null && newUpdate != null) {
+          return oldUpdate.toString() != newUpdate.toString();
+        }
+      }
+      // Fallback to full content comparison
+      return jsonEncode(oldData) != jsonEncode(newData);
+    } catch (e) {
+      return true; // Assume updated if error in comparison
+    }
+  }
+
   /// HTTP Methods using Either
   Future<Either<NetworkFailure, NetworkSuccess<T>>> get<T>({
     required String endpoint,
@@ -316,7 +422,6 @@ class ApiClient {
     required T Function(dynamic) fromJsonT,
     Options? options,
     CancelToken? cancelToken,
-    bool cache = false,
     Duration? cacheDuration,
     ProgressCallback? onReceiveProgress,
   }) => _request(
@@ -326,7 +431,25 @@ class ApiClient {
     queryParameters: queryParameters,
     options: options,
     cancelToken: cancelToken,
-    cache: cache,
+    cacheDuration: cacheDuration,
+    onReceiveProgress: onReceiveProgress,
+  );
+
+  Stream<Either<NetworkFailure, NetworkSuccess<T>>> getStream<T>({
+    required String endpoint,
+    Map<String, dynamic>? queryParameters,
+    required T Function(dynamic) fromJsonT,
+    Options? options,
+    CancelToken? cancelToken,
+    Duration? cacheDuration,
+    ProgressCallback? onReceiveProgress,
+  }) => _streamRequest(
+    method: 'GET',
+    endpoint: endpoint,
+    fromJsonT: fromJsonT,
+    queryParameters: queryParameters,
+    options: options,
+    cancelToken: cancelToken,
     cacheDuration: cacheDuration,
     onReceiveProgress: onReceiveProgress,
   );

@@ -1,5 +1,5 @@
 import '../../../core/api/api_client.dart';
-import '../../../core/api/network_result.dart';
+import '../../../core/api/network_stream.dart';
 import '../../../core/constants/api_constants.dart';
 import '../../auth/models/user_response_model.dart';
 import 'profile_repo.dart';
@@ -10,10 +10,9 @@ class ProfileRepoImpl implements ProfileRepo {
   ProfileRepoImpl({required this.apiClient});
 
   @override
-  NetworkResult<UserModel> getProfile() async {
-    return await apiClient.get<UserModel>(
+  NetworkStream<UserModel> getProfile() {
+    return apiClient.getStream<UserModel>(
       endpoint: ApiConstants.user.profile,
-      cache: true,
       cacheDuration: const Duration(days: 30),
       fromJsonT: (json) => UserModel.fromJson(json),
     );

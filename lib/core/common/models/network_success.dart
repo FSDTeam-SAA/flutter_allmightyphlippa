@@ -7,15 +7,24 @@ class NetworkSuccess<T> extends Equatable {
   final int statusCode;
   final T? pagination;
 
+  final bool isFromCache;
+
   const NetworkSuccess({
     required this.data,
     required this.message,
     required this.statusCode,
     this.pagination,
+    this.isFromCache = false,
   });
 
   @override
-  List<Object?> get props => [data, message, statusCode, pagination];
+  List<Object?> get props => [
+    data,
+    message,
+    statusCode,
+    pagination,
+    isFromCache,
+  ];
 }
 
 class ServerSuccess<T> extends NetworkSuccess<T> {
@@ -23,6 +32,7 @@ class ServerSuccess<T> extends NetworkSuccess<T> {
     required super.data,
     required super.message,
     required super.statusCode,
+    super.isFromCache = false,
   });
 }
 
@@ -31,6 +41,7 @@ class CreatedSuccess<T> extends NetworkSuccess<T> {
     required super.data,
     required super.message,
     super.statusCode = 201,
+    super.isFromCache = false,
   });
 }
 
@@ -39,12 +50,16 @@ class UpdatedSuccess<T> extends NetworkSuccess<T> {
     required super.data,
     required super.message,
     super.statusCode = 200,
+    super.isFromCache = false,
   });
 }
 
 class DeletedSuccess extends NetworkSuccess<void> {
-  const DeletedSuccess({required super.message, super.statusCode = 204})
-    : super(data: null);
+  const DeletedSuccess({
+    required super.message,
+    super.statusCode = 204,
+    super.isFromCache = false,
+  }) : super(data: null);
 }
 
 class RetrievedSuccess<T> extends NetworkSuccess<T> {
@@ -52,5 +67,6 @@ class RetrievedSuccess<T> extends NetworkSuccess<T> {
     required super.data,
     required super.message,
     super.statusCode = 200,
+    super.isFromCache = false,
   });
 }
