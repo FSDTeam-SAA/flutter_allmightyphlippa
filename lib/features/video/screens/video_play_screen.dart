@@ -71,36 +71,41 @@ class _VideoPlayScreenState extends State<VideoPlayScreen> {
           return Column(
             children: [
               // Fixed Video Player
-              AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Stack(
-                  children: [
-                    Container(
-                      color: Colors.black,
-                      child: controller.isVideoInitialized.value
-                          ? Video(controller: controller.videoController)
-                          : const Center(
-                              child: CircularProgressIndicator(
-                                color: AppColors.red,
+              Container(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.6,
+                ),
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: Stack(
+                    children: [
+                      Container(
+                        color: Colors.black,
+                        child: controller.isVideoInitialized.value
+                            ? Video(controller: controller.videoController)
+                            : const Center(
+                                child: CircularProgressIndicator(
+                                  color: AppColors.red,
+                                ),
                               ),
-                            ),
-                    ),
-                    const Positioned(
-                      top: 10,
-                      left: 10,
-                      child: BackButton(color: Colors.white),
-                    ),
-                    Positioned(
-                      top: 10,
-                      right: 10,
-                      child: IconButton(
-                        icon: const Icon(Icons.settings, color: Colors.white),
-                        onPressed: () {
-                          // TODO: Settings
-                        },
                       ),
-                    ),
-                  ],
+                      const Positioned(
+                        top: 10,
+                        left: 10,
+                        child: BackButton(color: Colors.white),
+                      ),
+                      Positioned(
+                        top: 10,
+                        right: 10,
+                        child: IconButton(
+                          icon: const Icon(Icons.settings, color: Colors.white),
+                          onPressed: () {
+                            // TODO: Settings
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
