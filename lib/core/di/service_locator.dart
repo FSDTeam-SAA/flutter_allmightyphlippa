@@ -1,7 +1,7 @@
 import 'setup_core.dart';
 import 'setup_repository.dart';
 // import 'setup_usecases.dart';
-import 'setup_controllers.dart';
+// import 'setup_controllers.dart';
 import 'setup_services.dart';
 
 Future<void> setupServiceLocator() async {
@@ -15,7 +15,7 @@ Future<void> setupServiceLocator() async {
   // setupUsecases();
 
   // Controllers
-  await setupControllers();
+  // await setupControllers();
 
   // Services
   await setupServices();

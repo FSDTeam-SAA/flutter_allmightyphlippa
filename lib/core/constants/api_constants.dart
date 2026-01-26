@@ -1,7 +1,7 @@
 class ApiConstants {
   /// [Base Configuration]
-  static const String baseDomain = 'http://10.10.5.48:5001'; // Noyon Office
-  // static const String baseDomain = 'http://192.168.0.218:5000'; // Noyon Home
+  // static const String baseDomain = 'http://10.10.5.48:5001'; // Noyon Office
+  static const String baseDomain = 'http://192.168.0.218:5000'; // Noyon Home
   static const String baseUrl = '$baseDomain/api/v1';
 
   /// Dynamically generated WebSocket URL based on baseDomain
@@ -37,6 +37,8 @@ class ApiConstants {
   static PlaylistEndpoints get playlist => PlaylistEndpoints();
 
   static ServerEndpoints get server => ServerEndpoints();
+
+  static VideoEndpoints get video => VideoEndpoints();
 }
 
 /// [Authentication Endpoints]
@@ -62,7 +64,6 @@ class UserEndpoints {
   static const String _base = '${ApiConstants.baseUrl}/user';
 
   final String profile = '$_base/profile';
-  final String updateProfile = '$_base/update-profile';
 }
 
 class PlaylistEndpoints {
@@ -78,4 +79,13 @@ class ServerEndpoints {
 
   final String connectTv = '$_base/connect-tv';
   final String getPlayUrl = '$_base/get-play-url';
+}
+
+class VideoEndpoints {
+  static const String _base = '${ApiConstants.baseUrl}/watch-history';
+
+  final String updateVideoStatus = '$_base/update';
+  final String getWatchHistory = '$_base/history';
+  final String getVideoStatus = '$_base/status';
+  final String getFavorites = '$_base/favorites';
 }

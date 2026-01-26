@@ -131,6 +131,7 @@ class PlaylistListScreen extends StatelessWidget {
             text: "Add New Playlist",
             onSimplePressed: () => Get.to(() => const AddPlaylistScreen()),
           ),
+          Gap.bottomBarGap,
         ],
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_almightyflippa/core/api/network_result.dart';
 
 import '../../../core/api/api_client.dart';
@@ -22,10 +23,12 @@ class ProfileRepoImpl implements ProfileRepo {
   }
 
   @override
-  NetworkResult<UserModel> updateProfile(Map<String, dynamic> data) async {
-    return await apiClient.patch<UserModel>(
+  NetworkResult<UserModel> updateProfile({
+    required FormData formData,
+  }) async {
+    return await apiClient.put<UserModel>(
       endpoint: ApiConstants.user.profile,
-      data: data,
+      data: formData,
       fromJsonT: (json) => UserModel.fromJson(json),
       // v--- ADD THIS TO CLEAR THE CACHE ---v
       invalidatePaths: [ApiConstants.user.profile],

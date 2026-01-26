@@ -20,8 +20,12 @@ class StreamData {
 
   factory StreamData.fromJson(Map<String, dynamic> json) {
     return StreamData(
-      info: MovieInfo.fromJson(json['info'] ?? {}),
-      movieData: MovieData.fromJson(json['movie_data'] ?? {}),
+      info: MovieInfo.fromJson(
+        json['info'] is Map<String, dynamic> ? json['info'] : {},
+      ),
+      movieData: MovieData.fromJson(
+        json['movie_data'] is Map<String, dynamic> ? json['movie_data'] : {},
+      ),
     );
   }
 }

@@ -4,14 +4,18 @@ import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 
+import 'dart:async';
 import '../../movie/controllers/movie_controller.dart';
 import '../../series/controllers/series_controller.dart';
 import '../../series/models/single_series_response_model.dart';
 import '../../../core/services/auth_storage_service.dart';
+import '../repositories/video_status_repo.dart';
+import '../models/video_status_request_model.dart';
 
 class VideoPlayController extends GetxController {
   MovieController get movieCtrl => Get.find<MovieController>();
   SeriesController get seriesCtrl => Get.find<SeriesController>();
+  VideoStatusRepo get videoStatusRepo => Get.find<VideoStatusRepo>();
 
   late final Player player;
   late final VideoController videoController;
@@ -22,6 +26,12 @@ class VideoPlayController extends GetxController {
 
   // Track the current episode for series
   final currentEpisode = Rxn<Episode>();
+
+  StreamSubscription? _positionSubscription;
+  Duration _lastUpdatePosition = Duration.zero;
+  final _updateInterval = const Duration(seconds: 10);
+  String? _currentVideoId;
+  String? _currentVideoType;
 
   @override
   void onInit() {
@@ -78,6 +88,8 @@ class VideoPlayController extends GetxController {
 
   @override
   void onClose() {
+    _positionSubscription?.cancel();
+    _syncVideoStatus(); // Sync one last time
     player.dispose();
     super.onClose();
   }
@@ -110,6 +122,8 @@ class VideoPlayController extends GetxController {
     // Initialize video if URL is available
     final movie = movieCtrl.movie.value;
     if (movie != null && movie.playUrl.isNotEmpty) {
+      _currentVideoId = streamId.toString();
+      _currentVideoType = 'movie';
       await _initializePlayer(movie.playUrl);
     }
   }
@@ -146,9 +160,13 @@ class VideoPlayController extends GetxController {
 
       // Reconstruct play URL for the specific episode
       // http://${host}:${port}/series/${username}/${password}/${episodeId}.${fileExt}
+      // Reconstruct play URL for the specific episode
+      // http://${host}:${port}/series/${username}/${password}/${episodeId}.${fileExt}
       final playUrl =
           'http://$host:$port/series/${playlistData.username}/${playlistData.password}/${episode.id}.$fileExt';
 
+      _currentVideoId = episode.id.toString();
+      _currentVideoType = 'series';
       await _initializePlayer(playUrl);
     } catch (e) {
       debugPrint('Error playing episode: $e');
@@ -158,11 +176,72 @@ class VideoPlayController extends GetxController {
 
   Future<void> _initializePlayer(String videoUrl) async {
     try {
-      await player.open(Media(videoUrl));
+      // 1. Fetch resume position if we have video info
+      Duration startPosition = Duration.zero;
+      if (_currentVideoId != null) {
+        final result = await videoStatusRepo.getVideoStatus(_currentVideoId!);
+        if (result.isRight()) {
+          final statusSuccess = result.getOrElse(() => throw Exception());
+          final status = statusSuccess.data;
+
+          if (!status.isCompleted && status.currentTime > 0) {
+            startPosition = Duration(seconds: status.currentTime.toInt());
+          }
+        }
+      }
+
+      // 2. Open Player
+      await player.open(Media(videoUrl), play: false);
+      if (startPosition > Duration.zero) {
+        await player.seek(startPosition);
+      }
+      await player.play();
+
       isVideoInitialized.value = true;
+      _startPositionListener();
     } catch (e) {
       debugPrint('Error initializing video player: $e');
       Get.snackbar('Error', 'Failed to load video');
     }
+  }
+
+  void _startPositionListener() {
+    _positionSubscription?.cancel();
+    _positionSubscription = player.stream.position.listen((position) {
+      if ((position - _lastUpdatePosition).abs() > _updateInterval) {
+        _syncVideoStatus();
+        _lastUpdatePosition = position;
+      }
+    });
+  }
+
+  Future<void> _syncVideoStatus() async {
+    if (_currentVideoId == null || _currentVideoType == null) return;
+
+    final position = player.state.position;
+    final duration = player.state.duration;
+
+    if (duration == Duration.zero) return;
+
+    await videoStatusRepo.updateVideoStatus(
+      UpdateVideoStatusRequest(
+        videoId: _currentVideoId!,
+        videoType: _currentVideoType!,
+        currentTime: position.inSeconds.toDouble(),
+        duration: duration.inSeconds.toDouble(),
+        seasonNumber: currentEpisode.value?.season,
+        episodeNumber: currentEpisode.value?.episodeNum,
+        thumbnail: _getThumbnail(),
+      ),
+    );
+  }
+
+  String? _getThumbnail() {
+    if (_currentVideoType == 'movie') {
+      return movieCtrl.movie.value?.streamData.info.movieImage;
+    } else if (_currentVideoType == 'series') {
+      return seriesCtrl.singleSeries.value?.data?.info?.cover;
+    }
+    return null;
   }
 }

@@ -5,6 +5,8 @@ import 'package:flutter_almightyflippa/features/profile/repo/profile_repo.dart';
 import 'package:flutter_almightyflippa/features/profile/repo/profile_repo_impl.dart';
 import 'package:flutter_almightyflippa/features/series/repositories/series_repo.dart';
 import 'package:flutter_almightyflippa/features/series/repositories/series_repo_impl.dart';
+import 'package:flutter_almightyflippa/features/video/repositories/video_status_repo.dart';
+import 'package:flutter_almightyflippa/features/video/repositories/video_status_repo_impl.dart';
 import 'package:get/get.dart';
 
 import '../../features/auth/repo/auth_repo.dart';
@@ -12,6 +14,7 @@ import '../../features/movie/repositories/movie_repo.dart';
 import '../../features/movie/repositories/movie_repo_impl.dart';
 import '../../features/tv/repositories/live_tv_repo.dart';
 import '../../features/tv/repositories/live_tv_repo_impl.dart';
+
 import '../utils/getx_helper.dart';
 
 Future<void> setupRepository() async {
@@ -39,6 +42,11 @@ Future<void> setupRepository() async {
 
   Get.getOrPutLazy<LiveTvRepo>(
     () => LiveTvRepoImpl(apiClient: Get.find()),
+    fenix: true,
+  );
+
+  Get.getOrPutLazy<VideoStatusRepo>(
+    () => VideoStatusRepoImpl(apiClient: Get.find()),
     fenix: true,
   );
 }

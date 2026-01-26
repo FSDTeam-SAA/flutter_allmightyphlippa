@@ -66,9 +66,9 @@ class MultiFormDataManager {
   }
 
   // Add single file with a custom key
-  void addFile(File file, {required String key}) {
+  void addFile({required String key, required XFile file}) {
     fileData.putIfAbsent(key, () => []);
-    fileData[key]!.add(file);
+    fileData[key]!.add(File(file.path));
   }
 
   // Remove text data by key

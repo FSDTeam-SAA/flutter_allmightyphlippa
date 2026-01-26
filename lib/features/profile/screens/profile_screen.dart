@@ -7,7 +7,11 @@ import 'package:flutter_almightyflippa/features/profile/controller/profile_contr
 import 'package:flutx_core/flutx_core.dart';
 import 'package:get/get.dart';
 
+import 'package:flutter_almightyflippa/features/playlist/models/server_request_model.dart';
+import 'package:flutter_almightyflippa/features/video/screens/video_play_screen.dart';
+
 import '../../../core/common/widgets/app_cached_image.dart';
+import 'profile_update_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -17,7 +21,7 @@ class ProfileScreen extends StatelessWidget {
     final profileCtrl = Get.put(ProfileController());
 
     return RefreshIndicator.adaptive(
-      onRefresh: () => profileCtrl.getProfile(isRefresh: true),
+      onRefresh: () => profileCtrl.refreshProfile(),
 
       child: SingleChildScrollView(
         child: Padding(
@@ -88,7 +92,12 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Get.to(
+                          () => const ProfileUpdateScreen(),
+                          transition: Transition.rightToLeft,
+                        );
+                      },
                       icon: AppSvg(
                         asset: AssetsConstants.icons.edit05,
                         color: AppColors.primaryWhite,
@@ -102,83 +111,170 @@ class ProfileScreen extends StatelessWidget {
 
               Gap.h32,
 
-              /*
-              // History Section (Commented out for now)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "History",
-                    style: TextStyle(
-                      color: AppColors.primaryWhite,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+              // History Section
+              Obx(() {
+                if (profileCtrl.watchHistory.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+
+                return Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "History",
+                          style: TextStyle(
+                            color: AppColors.primaryWhite,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {},
+                          child: Text(
+                            "See All",
+                            style: TextStyle(color: AppColors.primaryGray),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      "See All",
-                      style: TextStyle(color: AppColors.primaryGray),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 180,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 3,
-                  separatorBuilder: (context, index) => Gap.w12,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      width: 150,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Stack(
-                              children: [
-                                Image.network(
-                                  "https://via.placeholder.com/150x100",
-                                  height: 100,
-                                  width: 150,
-                                  fit: BoxFit.cover,
-                                ),
-                                Positioned(
-                                  bottom: 8,
-                                  right: 8,
-                                  child: Text(
-                                    "15:43 / 40:15",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                      backgroundColor: Colors.black54,
+                    SizedBox(
+                      height: 220,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: profileCtrl.watchHistory.length,
+                        separatorBuilder: (context, index) => Gap.w12,
+                        itemBuilder: (context, index) {
+                          final history = profileCtrl.watchHistory[index];
+                          return GestureDetector(
+                            onTap: () {
+                              final streamId = int.tryParse(history.videoId);
+                              final type = history.videoType == 'movie'
+                                  ? ServerType.movies
+                                  : history.videoType == 'series'
+                                  ? ServerType.series
+                                  : null;
+
+                              if (streamId != null && type != null) {
+                                Get.to(
+                                  () => VideoPlayScreen(
+                                    streamId: streamId,
+                                    type: type,
+                                  ),
+                                );
+                              }
+                            },
+                            child: Container(
+                              width: 140,
+                              margin: const EdgeInsets.only(right: 12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Stack(
+                                        children: [
+                                          if (history.thumbnail.isNotEmpty)
+                                            Positioned.fill(
+                                              child: AppCachedImage(
+                                                imageUrl: history.thumbnail,
+                                                fit: BoxFit.cover,
+                                                onTap: () {},
+                                              ),
+                                            )
+                                          else
+                                            Positioned.fill(
+                                              child: Container(
+                                                color:
+                                                    AppColors.containerBgColor,
+                                                child: const Icon(
+                                                  Icons.movie,
+                                                  color: AppColors.iconColor,
+                                                  size: 40,
+                                                ),
+                                              ),
+                                            ),
+
+                                          // Linear Progress Bar
+                                          Positioned(
+                                            bottom: 0,
+                                            left: 0,
+                                            right: 0,
+                                            child: LinearProgressIndicator(
+                                              value:
+                                                  history.progressPercentage /
+                                                  100,
+                                              backgroundColor: Colors.black26,
+                                              valueColor:
+                                                  const AlwaysStoppedAnimation<
+                                                    Color
+                                                  >(AppColors.red),
+                                              minHeight: 3,
+                                            ),
+                                          ),
+
+                                          // Series Badge
+                                          if (history.videoType == 'series')
+                                            Positioned(
+                                              top: 8,
+                                              left: 8,
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 6,
+                                                  vertical: 4,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black54,
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                ),
+                                                child: Text(
+                                                  "S${history.seasonNumber} E${history.episodeNumber}",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                  Gap.h8,
+                                  Text(
+                                    "Video ID: ${history.videoId.length > 8 ? '${history.videoId.substring(0, 8)}...' : history.videoId}",
+                                    style: const TextStyle(
+                                      color: AppColors.primaryWhite,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    history.videoType == 'movie'
+                                        ? 'Movie'
+                                        : 'Series',
+                                    style: const TextStyle(
+                                      color: AppColors.primaryGray,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          Gap.h8,
-                          Text(
-                            "Lorem ipsum dolor sit amet, consectetur ....",
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: AppColors.primaryWhite,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
-              ),
-              Gap.h24,
-              */
+                    ),
+                    Gap.h24,
+                  ],
+                );
+              }),
 
               // Menu Items
               _buildMenuItem(
