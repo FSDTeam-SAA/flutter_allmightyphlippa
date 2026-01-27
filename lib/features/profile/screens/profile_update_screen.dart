@@ -83,10 +83,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.primaryBlack,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.primaryWhite),
-          onPressed: () => Get.back(),
-        ),
+        leading: BackButton(),
         title: const Text(
           'My Profile',
           style: TextStyle(

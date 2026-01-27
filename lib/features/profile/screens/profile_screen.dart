@@ -11,6 +11,7 @@ import 'package:flutter_almightyflippa/features/playlist/models/server_request_m
 import 'package:flutter_almightyflippa/features/video/screens/video_play_screen.dart';
 
 import '../../../core/common/widgets/app_cached_image.dart';
+import '../../history/screens/history_screen.dart';
 import 'profile_update_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -131,7 +132,9 @@ class ProfileScreen extends StatelessWidget {
                           ),
                         ),
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Get.to(() => const HistoryScreen());
+                          },
                           child: Text(
                             "See All",
                             style: TextStyle(color: AppColors.primaryGray),

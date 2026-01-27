@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:media_kit_video/media_kit_video.dart';
+import 'package:chewie/chewie.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../controllers/live_video_play_controller.dart';
@@ -65,10 +65,11 @@ class _LiveVideoPlayScreenState extends State<LiveVideoPlayScreen> {
             );
           }
 
-          if (controller.isVideoInitialized.value) {
+          if (controller.isVideoInitialized.value &&
+              controller.chewieController != null) {
             return AspectRatio(
               aspectRatio: 16 / 9,
-              child: Video(controller: controller.videoController),
+              child: Chewie(controller: controller.chewieController!),
             );
           }
 

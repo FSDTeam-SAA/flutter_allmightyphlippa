@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class UpdateVideoStatusRequest extends Equatable {
+  final String title;
   final String videoId;
   final String videoType; // e.g. "movie", "tv", "anime"
   final double? currentTime; // seconds (nullable)
@@ -11,6 +12,7 @@ class UpdateVideoStatusRequest extends Equatable {
   final String? thumbnail;
 
   const UpdateVideoStatusRequest({
+    required this.title,
     required this.videoId,
     required this.videoType,
     this.currentTime,
@@ -24,6 +26,7 @@ class UpdateVideoStatusRequest extends Equatable {
   // For JSON serialization (most popular packages: json_serializable, freezed)
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{
+      'title': title,
       'videoId': videoId,
       'videoType': videoType,
       'lastWatchedAt': DateTime.now()
@@ -54,6 +57,7 @@ class UpdateVideoStatusRequest extends Equatable {
 
   @override
   List<Object?> get props => [
+    title,
     videoId,
     videoType,
     currentTime,

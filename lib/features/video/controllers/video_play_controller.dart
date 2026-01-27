@@ -225,6 +225,7 @@ class VideoPlayController extends GetxController {
 
     await videoStatusRepo.updateVideoStatus(
       UpdateVideoStatusRequest(
+        title: title,
         videoId: _currentVideoId!,
         videoType: _currentVideoType!,
         currentTime: position.inSeconds.toDouble(),

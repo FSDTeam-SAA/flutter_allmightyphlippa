@@ -1,29 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:media_kit/media_kit.dart';
-import 'package:media_kit_video/media_kit_video.dart';
+import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
 
 import '../../tv/repositories/live_tv_repo.dart';
 
 class LiveVideoPlayController extends GetxController {
   final _liveTvRepo = Get.find<LiveTvRepo>();
 
-  late final Player player;
-  late final VideoController videoController;
+  VideoPlayerController? videoPlayerController;
+  ChewieController? chewieController;
 
   final isVideoInitialized = false.obs;
   final isLoading = false.obs;
 
   @override
-  void onInit() {
-    super.onInit();
-    player = Player();
-    videoController = VideoController(player);
-  }
-
-  @override
   void onClose() {
-    player.dispose();
+    videoPlayerController?.dispose();
+    chewieController?.dispose();
     super.onClose();
   }
 
@@ -31,19 +25,49 @@ class LiveVideoPlayController extends GetxController {
     isVideoInitialized.value = false;
     isLoading.value = true;
 
+    // Dispose old controllers if they exist
+    await videoPlayerController?.dispose();
+    chewieController?.dispose();
+    videoPlayerController = null;
+    chewieController = null;
+
     try {
       final result = await _liveTvRepo.getSingleLiveTV(streamId: streamId);
 
-      result.fold(
-        (fail) {
+      await result.fold(
+        (fail) async {
           debugPrint('Error fetching live TV URL: ${fail.message}');
-          Get.snackbar('Error', 'Failed to fetch live stream URL');
         },
         (success) async {
           final playUrl = success.data.playUrl;
           debugPrint('Live TV Play URL: $playUrl');
+
           if (playUrl.isNotEmpty) {
-            await player.open(Media(playUrl));
+            videoPlayerController = VideoPlayerController.networkUrl(
+              Uri.parse(playUrl),
+              // Uri.parse(
+              //   "http://proxpanel.pro/live/tes83747/tes736836/748395.m3u8",
+              // ),
+            );
+
+            await videoPlayerController!.initialize();
+
+            chewieController = ChewieController(
+              videoPlayerController: videoPlayerController!,
+              autoPlay: true,
+              isLive: true,
+              looping: false,
+              aspectRatio: 16 / 9,
+              errorBuilder: (context, errorMessage) {
+                return Center(
+                  child: Text(
+                    errorMessage,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                );
+              },
+            );
+
             isVideoInitialized.value = true;
           } else {
             Get.snackbar('Error', 'Stream URL is empty');
@@ -52,7 +76,6 @@ class LiveVideoPlayController extends GetxController {
       );
     } catch (e) {
       debugPrint('Error initializing live video: $e');
-      Get.snackbar('Error', 'An unexpected error occurred');
     } finally {
       isLoading.value = false;
     }

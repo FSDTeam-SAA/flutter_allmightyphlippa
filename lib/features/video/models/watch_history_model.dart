@@ -5,6 +5,7 @@ class WatchHistoryModel {
   final String videoType;
   final int? seasonNumber;
   final int? episodeNumber;
+  final String name;
   final double currentTime;
   final String thumbnail;
   final double duration;
@@ -20,6 +21,7 @@ class WatchHistoryModel {
     required this.videoType,
     this.seasonNumber,
     this.episodeNumber,
+    this.name = '',
     this.currentTime = 0,
     this.thumbnail = '',
     this.duration = 0,
@@ -37,6 +39,10 @@ class WatchHistoryModel {
       videoType: json['videoType'] ?? '',
       seasonNumber: json['seasonNumber'],
       episodeNumber: json['episodeNumber'],
+      name:
+          json['name'] ??
+          json['title'] ??
+          '', // Handle potential key variations
       thumbnail: json['thumbnail'] ?? '',
       currentTime: (json['currentTime'] as num?)?.toDouble() ?? 0,
       duration: (json['duration'] as num?)?.toDouble() ?? 0,
