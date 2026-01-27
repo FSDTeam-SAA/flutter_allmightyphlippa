@@ -33,4 +33,5 @@ class Icons {
   final String edit05 = '$_base/edit-05.svg';
   final String shieldOff = '$_base/shield-off.png';
   final String logOut = '$_base/log-out-03.svg';
+  final String trash = '$_base/trash.svg';
 }

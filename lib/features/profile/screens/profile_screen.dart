@@ -11,7 +11,12 @@ import 'package:flutter_almightyflippa/features/playlist/models/server_request_m
 import 'package:flutter_almightyflippa/features/video/screens/video_play_screen.dart';
 
 import '../../../core/common/widgets/app_cached_image.dart';
+import '../../../core/common/widgets/button_widgets.dart';
+import '../../favourites/screens/favourite_screen.dart';
 import '../../history/screens/history_screen.dart';
+import '../../app/screens/about_app_screen.dart';
+import '../../app/screens/privacy_policy_screen.dart';
+import '../../app/screens/terms_condition_screen.dart';
 import 'profile_update_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -283,7 +288,12 @@ class ProfileScreen extends StatelessWidget {
               _buildMenuItem(
                 iconAsset: AssetsConstants.icons.favourite,
                 title: "Favourite",
-                onTap: () {},
+                onTap: () {
+                  Get.to(
+                    () => const FavouriteScreen(),
+                    transition: Transition.rightToLeft,
+                  );
+                },
               ),
               _buildMenuItem(
                 iconAsset: AssetsConstants.icons.lock,
@@ -293,25 +303,175 @@ class ProfileScreen extends StatelessWidget {
               _buildMenuItem(
                 iconAsset: AssetsConstants.icons.chartBreakoutCircle,
                 title: "About App",
-                onTap: () {},
+                onTap: () {
+                  Get.to(
+                    () => const AboutAppScreen(),
+                    transition: Transition.rightToLeft,
+                  );
+                },
               ),
               _buildMenuItem(
                 iconAsset: AssetsConstants.icons.fileShield,
                 title: "Privacy Policy",
-                onTap: () {},
+                onTap: () {
+                  Get.to(
+                    () => const PrivacyPolicyScreen(),
+                    transition: Transition.rightToLeft,
+                  );
+                },
               ),
               _buildMenuItem(
                 iconAsset: AssetsConstants.icons.shieldOff,
                 title: "Term & Condition",
                 isSvg: false,
-                onTap: () {},
+                onTap: () {
+                  Get.to(
+                    () => const TermsConditionScreen(),
+                    transition: Transition.rightToLeft,
+                  );
+                },
+              ),
+              _buildMenuItem(
+                iconAsset: AssetsConstants.icons.trash,
+                title: "Delete Account",
+                onTap: () {
+                  Get.dialog(
+                    Dialog(
+                      backgroundColor: AppColors.containerBgColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              "Delete Account",
+                              style: TextStyle(
+                                color: AppColors.primaryWhite,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Gap.h16,
+                            const Text(
+                              "Are you sure you want to delete your account? This action is permanent and cannot be undone.",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: AppColors.primaryGray,
+                                fontSize: 14,
+                                height: 1.5,
+                              ),
+                            ),
+                            Gap.h32,
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: SecondaryButton(
+                                    text: "Cancel",
+                                    height: 45,
+                                    borderRadius: 45,
+                                    onSimplePressed: () => Get.back(),
+                                  ),
+                                ),
+                                Gap.w16,
+                                Expanded(
+                                  child: PrimaryButton(
+                                    text: "Delete",
+                                    height: 45,
+                                    borderRadius: 45,
+                                    backgroundColor: AppColors.red,
+                                    textColor: Colors.white,
+                                    onSimplePressed: () {
+                                      Get.back();
+                                      Get.snackbar(
+                                        "Coming Soon",
+                                        "Delete account feature is under development",
+                                        backgroundColor:
+                                            AppColors.containerBgColor,
+                                        colorText: Colors.white,
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
               _buildMenuItem(
                 iconAsset: AssetsConstants.icons.logOut,
                 title: "Log Out",
                 titleColor: AppColors.red,
                 iconColor: AppColors.red,
-                onTap: () => profileCtrl.logout(),
+                onTap: () {
+                  Get.dialog(
+                    Dialog(
+                      backgroundColor: AppColors.containerBgColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              "Confirm Logout",
+                              style: TextStyle(
+                                color: AppColors.primaryWhite,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Gap.h16,
+                            const Text(
+                              "Are you sure you want to log out of your account?",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: AppColors.primaryGray,
+                                fontSize: 14,
+                                height: 1.5,
+                              ),
+                            ),
+                            Gap.h32,
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: SecondaryButton(
+                                    text: "Cancel",
+                                    height: 45,
+                                    borderRadius: 45,
+                                    onSimplePressed: () => Get.back(),
+                                  ),
+                                ),
+                                Gap.w16,
+                                Expanded(
+                                  child: PrimaryButton(
+                                    text: "Logout",
+                                    height: 45,
+                                    borderRadius: 45,
+                                    backgroundColor: AppColors.red,
+                                    textColor: Colors.white,
+                                    onSimplePressed: () {
+                                      Get.back();
+                                      profileCtrl.logout();
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
               Gap.h40,
             ],

@@ -254,6 +254,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                 ),
                 Gap.h8,
                 TextFormField(
+                  readOnly: true,
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   style: const TextStyle(

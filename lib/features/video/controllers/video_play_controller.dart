@@ -26,6 +26,7 @@ class VideoPlayController extends GetxController {
 
   // Track the current episode for series
   final currentEpisode = Rxn<Episode>();
+  final isLoved = false.obs;
 
   StreamSubscription? _positionSubscription;
   Duration _lastUpdatePosition = Duration.zero;
@@ -184,6 +185,8 @@ class VideoPlayController extends GetxController {
           final statusSuccess = result.getOrElse(() => throw Exception());
           final status = statusSuccess.data;
 
+          isLoved.value = status.isLoved;
+
           if (!status.isCompleted && status.currentTime > 0) {
             startPosition = Duration(seconds: status.currentTime.toInt());
           }
@@ -202,6 +205,22 @@ class VideoPlayController extends GetxController {
     } catch (e) {
       debugPrint('Error initializing video player: $e');
       Get.snackbar('Error', 'Failed to load video');
+    }
+  }
+
+  Future<void> toggleFavorite() async {
+    if (_currentVideoId == null || _currentVideoType == null) return;
+
+    final result = await videoStatusRepo.updateVideoStatus(
+      UpdateVideoStatusRequest(
+        title: title,
+        videoId: _currentVideoId!,
+        videoType: _currentVideoType!,
+        isLoved: !isLoved.value,
+      ),
+    );
+    if (result.isRight()) {
+      isLoved.value = !isLoved.value;
     }
   }
 

@@ -146,21 +146,29 @@ class _VideoPlayScreenState extends State<VideoPlayScreen> {
                               ),
                             ),
                             const SizedBox(height: 16),
-                            const Row(
+                            Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Column(
-                                  children: [
-                                    Icon(
-                                      Icons.favorite_border,
-                                      color: Colors.white,
-                                      size: 30,
-                                    ),
-                                    Text(
-                                      "Favourite",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ],
+                                InkWell(
+                                  onTap: () => controller.toggleFavorite(),
+                                  child: Column(
+                                    children: [
+                                      Obx(() {
+                                        return Icon(
+                                          controller.isLoved.value
+                                              ? Icons.favorite
+                                              : Icons.favorite_border,
+                                          color: Colors.white,
+                                          size: 30,
+                                        );
+                                      }),
+
+                                      Text(
+                                        "Favourite",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
