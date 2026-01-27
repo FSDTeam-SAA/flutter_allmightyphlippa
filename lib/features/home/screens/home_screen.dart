@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.primaryBlack,
-      body: RefreshIndicator(
+      body: RefreshIndicator.adaptive(
         onRefresh: () => homeCtrl.refreshData(),
         color: AppColors.red,
         child: SingleChildScrollView(

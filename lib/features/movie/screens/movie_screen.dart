@@ -76,7 +76,7 @@ class _MovieScreenState extends State<MovieScreen> {
           ),
 
           Expanded(
-            child: RefreshIndicator(
+            child: RefreshIndicator.adaptive(
               onRefresh: () async {
                 await movieCtrl.getMovies();
               },

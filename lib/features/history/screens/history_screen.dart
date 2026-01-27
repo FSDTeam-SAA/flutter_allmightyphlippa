@@ -66,7 +66,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         final grouped = historyCtrl.groupedHistory;
         final keys = grouped.keys.toList();
 
-        return RefreshIndicator(
+        return RefreshIndicator.adaptive(
           onRefresh: () async {
             await historyCtrl.getHistory();
           },

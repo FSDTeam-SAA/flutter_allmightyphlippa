@@ -81,7 +81,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
             ),
 
             Expanded(
-              child: RefreshIndicator(
+              child: RefreshIndicator.adaptive(
                 onRefresh: () async {
                   await liveTvCtrl.getLiveTvList();
                 },

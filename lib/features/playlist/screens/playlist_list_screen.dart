@@ -59,7 +59,7 @@ class PlaylistListScreen extends StatelessWidget {
                 );
               }
 
-              return RefreshIndicator(
+              return RefreshIndicator.adaptive(
                 onRefresh: () => playlistCtrl.fetchPlaylists(),
                 child: ListView.separated(
                   itemCount: playlistCtrl.playlists.length,

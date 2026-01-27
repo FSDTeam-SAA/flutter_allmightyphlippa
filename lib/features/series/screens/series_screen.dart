@@ -76,7 +76,7 @@ class _SeriesScreenState extends State<SeriesScreen> {
           ),
 
           Expanded(
-            child: RefreshIndicator(
+            child: RefreshIndicator.adaptive(
               onRefresh: () async {
                 await seriesCtrl.getSeries();
               },
