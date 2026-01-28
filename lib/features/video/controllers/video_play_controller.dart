@@ -28,7 +28,18 @@ class VideoPlayController extends GetxController {
   final currentEpisode = Rxn<Episode>();
   final isLoved = false.obs;
 
+  final playbackSpeed = 1.0.obs;
+  final availableSpeeds = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
+
+  final currentVideoTrack = Rxn<VideoTrack>();
+  final availableVideoTracks = <VideoTrack>[].obs;
+
+  final currentSubtitleTrack = Rxn<SubtitleTrack>();
+  final availableSubtitleTracks = <SubtitleTrack>[].obs;
+  final isSubtitleEnabled = true.obs;
+
   StreamSubscription? _positionSubscription;
+  StreamSubscription? _tracksSubscription;
   Duration _lastUpdatePosition = Duration.zero;
   final _updateInterval = const Duration(seconds: 10);
   String? _currentVideoId;
@@ -39,6 +50,56 @@ class VideoPlayController extends GetxController {
     super.onInit();
     player = Player();
     videoController = VideoController(player);
+    _setupTracksListener();
+  }
+
+  void _setupTracksListener() {
+    _tracksSubscription = player.stream.tracks.listen((tracks) {
+      availableVideoTracks.value = tracks.video;
+      availableSubtitleTracks.value = tracks.subtitle;
+
+      // Initialize current tracks if not set
+      if (currentVideoTrack.value == null && tracks.video.isNotEmpty) {
+        currentVideoTrack.value = player.state.track.video;
+      }
+      if (currentSubtitleTrack.value == null && tracks.subtitle.isNotEmpty) {
+        currentSubtitleTrack.value = player.state.track.subtitle;
+      }
+    });
+  }
+
+  void setPlaybackSpeed(double speed) {
+    player.setRate(speed);
+    playbackSpeed.value = speed;
+  }
+
+  void setVideoTrack(VideoTrack track) {
+    player.setVideoTrack(track);
+    currentVideoTrack.value = track;
+  }
+
+  void setSubtitleTrack(SubtitleTrack track) {
+    player.setSubtitleTrack(track);
+    currentSubtitleTrack.value = track;
+    isSubtitleEnabled.value = track != SubtitleTrack.no();
+  }
+
+  void toggleSubtitle(bool enabled) {
+    if (enabled) {
+      // Try to restore previous or first available subtitle
+      if (availableSubtitleTracks.isNotEmpty) {
+        final track = currentSubtitleTrack.value != SubtitleTrack.no()
+            ? currentSubtitleTrack.value!
+            : availableSubtitleTracks.firstWhere(
+                (t) => t != SubtitleTrack.no(),
+                orElse: () => availableSubtitleTracks.first,
+              );
+        setSubtitleTrack(track);
+      }
+    } else {
+      player.setSubtitleTrack(SubtitleTrack.no());
+      isSubtitleEnabled.value = false;
+    }
   }
 
   String get title {
@@ -90,6 +151,7 @@ class VideoPlayController extends GetxController {
   @override
   void onClose() {
     _positionSubscription?.cancel();
+    _tracksSubscription?.cancel();
     _syncVideoStatus(); // Sync one last time
     player.dispose();
     super.onClose();
@@ -104,6 +166,14 @@ class VideoPlayController extends GetxController {
     isLoading.value = true;
     currentType.value = type;
     currentEpisode.value = null;
+
+    // Reset settings
+    playbackSpeed.value = 1.0;
+    currentVideoTrack.value = null;
+    availableVideoTracks.clear();
+    currentSubtitleTrack.value = null;
+    availableSubtitleTracks.clear();
+    isSubtitleEnabled.value = true;
 
     try {
       if (type == ServerType.movies) {
@@ -150,6 +220,14 @@ class VideoPlayController extends GetxController {
   Future<void> playEpisode(Episode episode) async {
     currentEpisode.value = episode;
     isVideoInitialized.value = false;
+
+    // Reset settings
+    playbackSpeed.value = 1.0;
+    currentVideoTrack.value = null;
+    availableVideoTracks.clear();
+    currentSubtitleTrack.value = null;
+    availableSubtitleTracks.clear();
+    isSubtitleEnabled.value = true;
 
     try {
       final storage = AuthStorageService();

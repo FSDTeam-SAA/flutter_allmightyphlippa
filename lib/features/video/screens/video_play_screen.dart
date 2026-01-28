@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_almightyflippa/features/playlist/models/server_request_model.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import '/core/constants/app_colors.dart';
 import 'package:get/get.dart';
@@ -100,7 +101,7 @@ class _VideoPlayScreenState extends State<VideoPlayScreen> {
                         child: IconButton(
                           icon: const Icon(Icons.settings, color: Colors.white),
                           onPressed: () {
-                            // TODO: Settings
+                            _showSettingsDialog(context);
                           },
                         ),
                       ),
@@ -512,5 +513,392 @@ class _VideoPlayScreenState extends State<VideoPlayScreen> {
         );
       }, childCount: allEpisodes.length),
     );
+  }
+
+  void _showSettingsDialog(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: '',
+      pageBuilder: (context, anim1, anim2) {
+        return Center(
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              decoration: BoxDecoration(
+                color: AppColors.containerBgColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF3D3D3D),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Settings",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () => Navigator.pop(context),
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.black,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Content
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        // Quality
+                        // _buildSettingRow(
+                        //   label: "Quality",
+                        //   value: Obx(() {
+                        //     final currentTrack =
+                        //         controller.currentVideoTrack.value;
+                        //     if (currentTrack == null ||
+                        //         currentTrack == VideoTrack.auto()) {
+                        //       return const Text(
+                        //         "Auto",
+                        //         style: TextStyle(color: Colors.white),
+                        //       );
+                        //     }
+                        //     return Text(
+                        //       currentTrack.displayName,
+                        //       style: const TextStyle(color: Colors.white),
+                        //     );
+                        //   }),
+                        //   onTap: () {
+                        //     Navigator.pop(context);
+                        //     _showQualityDialog(context);
+                        //   },
+                        // ),
+                        // const SizedBox(height: 16),
+                        // Playback Speed
+                        _buildSettingRow(
+                          label: "Playback Speed",
+                          value: Obx(() {
+                            final speed = controller.playbackSpeed.value;
+                            return Text(
+                              speed == 1.0 ? "1" : speed.toString(),
+                              style: const TextStyle(color: Colors.white),
+                            );
+                          }),
+                          onTap: () {
+                            Navigator.pop(context);
+                            _showSpeedDialog(context);
+                          },
+                        ),
+                        // const SizedBox(height: 16),
+                        // // Subtitle/CC
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //   children: [
+                        //     const Text(
+                        //       "Subtitle/CC",
+                        //       style: TextStyle(color: Colors.white),
+                        //     ),
+                        //     Obx(
+                        //       () => Switch(
+                        //         value: controller.isSubtitleEnabled.value,
+                        //         onChanged: (value) {
+                        //           controller.toggleSubtitle(value);
+                        //         },
+                        //         activeColor: AppColors.red,
+                        //         inactiveTrackColor: Colors.grey[700],
+                        //       ),
+                        //     ),
+                        //   ],
+                        // ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSettingRow({
+    required String label,
+    required Widget value,
+    required VoidCallback onTap,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: const TextStyle(color: Colors.white)),
+        InkWell(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E1E1E),
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: Colors.grey[800]!),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                value,
+                const SizedBox(width: 8),
+                const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // void _showQualityDialog(BuildContext context) {
+  //   showGeneralDialog(
+  //     context: context,
+  //     barrierDismissible: true,
+  //     barrierLabel: '',
+  //     pageBuilder: (context, anim1, anim2) {
+  //       return Center(
+  //         child: Material(
+  //           color: Colors.transparent,
+  //           child: Container(
+  //             width: MediaQuery.of(context).size.width * 0.7,
+  //             constraints: BoxConstraints(
+  //               maxHeight: MediaQuery.of(context).size.height * 0.6,
+  //             ),
+  //             decoration: BoxDecoration(
+  //               color: AppColors.containerBgColor,
+  //               borderRadius: BorderRadius.circular(12),
+  //             ),
+  //             child: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 const Padding(
+  //                   padding: EdgeInsets.all(16.0),
+  //                   child: Text(
+  //                     "Quality",
+  //                     style: TextStyle(
+  //                       color: Colors.white,
+  //                       fontSize: 18,
+  //                       fontWeight: FontWeight.bold,
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 Flexible(
+  //                   child: Obx(() {
+  //                     final tracks = controller.availableVideoTracks;
+  //                     return ListView.builder(
+  //                       shrinkWrap: true,
+  //                       itemCount: tracks.length,
+  //                       itemBuilder: (context, index) {
+  //                         final track = tracks[index];
+  //                         final isSelected =
+  //                             controller.currentVideoTrack.value == track;
+
+  //                         return InkWell(
+  //                           onTap: () {
+  //                             controller.setVideoTrack(track);
+  //                             Navigator.pop(context);
+  //                           },
+  //                           child: Padding(
+  //                             padding: const EdgeInsets.symmetric(
+  //                               horizontal: 16,
+  //                               vertical: 12,
+  //                             ),
+  //                             child: Row(
+  //                               mainAxisAlignment:
+  //                                   MainAxisAlignment.spaceBetween,
+  //                               children: [
+  //                                 Text(
+  //                                   track == VideoTrack.auto()
+  //                                       ? "Auto"
+  //                                       : track.displayName,
+  //                                   style: const TextStyle(color: Colors.white),
+  //                                 ),
+  //                                 Container(
+  //                                   width: 18,
+  //                                   height: 18,
+  //                                   decoration: BoxDecoration(
+  //                                     shape: BoxShape.circle,
+  //                                     border: Border.all(
+  //                                       color: isSelected
+  //                                           ? AppColors.red
+  //                                           : Colors.grey,
+  //                                     ),
+  //                                   ),
+  //                                   child: isSelected
+  //                                       ? Center(
+  //                                           child: Container(
+  //                                             width: 10,
+  //                                             height: 10,
+  //                                             decoration: const BoxDecoration(
+  //                                               color: AppColors.red,
+  //                                               shape: BoxShape.circle,
+  //                                             ),
+  //                                           ),
+  //                                         )
+  //                                       : null,
+  //                                 ),
+  //                               ],
+  //                             ),
+  //                           ),
+  //                         );
+  //                       },
+  //                     );
+  //                   }),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+
+  void _showSpeedDialog(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: '',
+      pageBuilder: (context, anim1, anim2) {
+        return Center(
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.6,
+              decoration: BoxDecoration(
+                color: AppColors.containerBgColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      "Playback Speed",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: controller.availableSpeeds.length,
+                    itemBuilder: (context, index) {
+                      final speed = controller.availableSpeeds[index];
+                      final isSelected =
+                          controller.playbackSpeed.value == speed;
+
+                      return InkWell(
+                        onTap: () {
+                          controller.setPlaybackSpeed(speed);
+                          Navigator.pop(context);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                speed == 1.0 ? "1" : speed.toString(),
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                              Container(
+                                width: 18,
+                                height: 18,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? AppColors.red
+                                        : Colors.grey,
+                                  ),
+                                ),
+                                child: isSelected
+                                    ? Center(
+                                        child: Container(
+                                          width: 10,
+                                          height: 10,
+                                          decoration: const BoxDecoration(
+                                            color: AppColors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                      )
+                                    : null,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+extension VideoTrackExtension on VideoTrack {
+  String get displayName {
+    if (this == VideoTrack.auto()) return "Auto";
+    if (this == VideoTrack.no()) return "None";
+
+    // If title is non-empty and seems useful, use it
+    if (title == null || title!.isEmpty) return "video";
+    // if (title!.isNotEmpty && title != "video") return title!;
+
+    // Otherwise fallback to id or something descriptive
+    return id.split('/').last.split('.').first;
   }
 }
