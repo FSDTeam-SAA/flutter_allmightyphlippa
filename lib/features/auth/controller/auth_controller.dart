@@ -1,29 +1,86 @@
-// import '../../../core/services/auth_storage_service.dart';
-// import '/features/auth/repo/auth_repo.dart';
-// import 'package:get/get.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-// import 'package:flutter_almightyflippa/features/auth/controller/login_controller.dart';
-// import 'package:flutter_almightyflippa/features/auth/controller/register_controller.dart';
+import '../../../core/constants/app_colors.dart';
+import '../models/change_password_request_model.dart';
+import '../repo/auth_repo.dart';
 
-// class AuthController extends GetxController {
-//   // Master Controller for Auth
+class AuthController extends GetxController {
+  final _authRepo = Get.find<AuthRepo>();
 
-//   @override
-//   void onInit() {
-//     super.onInit();
-//     Get.put(AuthRepo());
-//     Get.put(AuthStorageService());
-//     Get.put(LoginController());
-//     Get.put(RegisterController());
-//   }
+  // TextControllers
+  final oldPasswordController = TextEditingController();
+  final newPasswordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
-//   // Shared States could go here (e.g., currentUser)
-//   final RxString authErrorMessage = "".obs;
+  // FocusNodes
+  final oldPasswordFocus = FocusNode();
+  final newPasswordFocus = FocusNode();
+  final confirmPasswordFocus = FocusNode();
 
-//   @override
-//   void onClose() {
-//     loginCtrl.dispose();
-//     registerCtrl.dispose();
-//     super.onClose();
-//   }
-// }
+  // Form Key
+  final changePasswordFormKey = GlobalKey<FormState>();
+
+  // States
+  final RxString errorMessage = "".obs;
+  final RxBool obscureOldPassword = true.obs;
+  final RxBool obscureNewPassword = true.obs;
+  final RxBool obscureConfirmPassword = true.obs;
+  final RxBool isLoading = false.obs;
+
+  @override
+  void onClose() {
+    oldPasswordController.dispose();
+    newPasswordController.dispose();
+    confirmPasswordController.dispose();
+    oldPasswordFocus.dispose();
+    newPasswordFocus.dispose();
+    confirmPasswordFocus.dispose();
+    super.onClose();
+  }
+
+  void toggleObscureOldPassword() => obscureOldPassword.toggle();
+  void toggleObscureNewPassword() => obscureNewPassword.toggle();
+  void toggleObscureConfirmPassword() => obscureConfirmPassword.toggle();
+
+  Future<void> changePassword() async {
+    if (changePasswordFormKey.currentState?.validate() ?? false) {
+      errorMessage.value = "";
+      isLoading.value = true;
+
+      final request = ChangePasswordRequestModel(
+        oldPassword: oldPasswordController.text,
+        newPassword: newPasswordController.text,
+      );
+
+      final result = await _authRepo.changePassword(request);
+
+      isLoading.value = false;
+
+      result.fold(
+        (failure) {
+          errorMessage.value = failure.message;
+        },
+        (success) {
+          Get.back();
+          Get.snackbar(
+            "Success",
+            "Password changed successfully",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: AppColors.primaryBlack.withAlpha(
+              (0.2 * 255).toInt(),
+            ),
+            colorText: AppColors.primaryWhite,
+          );
+          _clearFields();
+        },
+      );
+    }
+  }
+
+  void _clearFields() {
+    oldPasswordController.clear();
+    newPasswordController.clear();
+    confirmPasswordController.clear();
+  }
+}

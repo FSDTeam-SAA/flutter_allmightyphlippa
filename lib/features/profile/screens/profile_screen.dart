@@ -17,6 +17,7 @@ import '../../history/screens/history_screen.dart';
 import '../../app/screens/about_app_screen.dart';
 import '../../app/screens/privacy_policy_screen.dart';
 import '../../app/screens/terms_condition_screen.dart';
+import '../../auth/screens/change_password_screen.dart';
 import 'profile_update_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -304,7 +305,12 @@ class ProfileScreen extends StatelessWidget {
               _buildMenuItem(
                 iconAsset: AssetsConstants.icons.lock,
                 title: "Change Password",
-                onTap: () {},
+                onTap: () {
+                  Get.to(
+                    () => const ChangePasswordScreen(),
+                    transition: Transition.rightToLeft,
+                  );
+                },
               ),
               _buildMenuItem(
                 iconAsset: AssetsConstants.icons.chartBreakoutCircle,
