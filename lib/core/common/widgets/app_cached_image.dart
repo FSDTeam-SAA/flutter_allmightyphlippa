@@ -1,11 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_almightyflippa/core/constants/app_colors.dart';
 import '../shimmer/shimmer_loader.dart';
 
 class AppCachedImage extends StatelessWidget {
   final String? imageUrl; // network image
-  final File? imageFile;  // local image (picked)
+  final File? imageFile; // local image (picked)
   final double? width;
   final double? height;
   final BoxFit fit;
@@ -13,6 +14,8 @@ class AppCachedImage extends StatelessWidget {
   final Color iconColor;
   final BorderRadius? borderRadius;
   final VoidCallback onTap;
+  final Color? shimmerBaseColor;
+  final Color? shimmerHighlightColor;
 
   const AppCachedImage({
     super.key,
@@ -23,7 +26,10 @@ class AppCachedImage extends StatelessWidget {
     this.fit = BoxFit.cover,
     this.icon = Icons.error,
     this.iconColor = Colors.red,
-    this.borderRadius, required this.onTap,
+    this.borderRadius,
+    required this.onTap,
+    this.shimmerBaseColor,
+    this.shimmerHighlightColor,
   });
 
   // Helper: safely convert double to int for caching
@@ -40,12 +46,7 @@ class AppCachedImage extends StatelessWidget {
     if (imageFile != null) {
       return ClipRRect(
         borderRadius: borderRadius ?? BorderRadius.zero,
-        child: Image.file(
-          imageFile!,
-          width: width,
-          height: height,
-          fit: fit,
-        ),
+        child: Image.file(imageFile!, width: width, height: height, fit: fit),
       );
     }
 
@@ -58,7 +59,7 @@ class AppCachedImage extends StatelessWidget {
           child: Container(
             width: width,
             height: height,
-            color: Colors.grey.shade200,
+            color: AppColors.containerBgColor,
             child: Center(
               child: Icon(
                 icon,
@@ -76,8 +77,10 @@ class AppCachedImage extends StatelessWidget {
     final int cacheHeight = _safeToInt(height, fallback: 450);
     final scale = MediaQuery.of(context).devicePixelRatio;
     final int scaledCacheWidth = (cacheWidth * scale).round().clamp(100, 800);
-    final int scaledCacheHeight =
-    (cacheHeight * scale).round().clamp(100, 1200);
+    final int scaledCacheHeight = (cacheHeight * scale).round().clamp(
+      100,
+      1200,
+    );
 
     // 4️⃣ Display network image with caching and shimmer
     return ClipRRect(
@@ -93,11 +96,13 @@ class AppCachedImage extends StatelessWidget {
         fit: fit,
         placeholder: (context, url) => ShimmerLoader(
           isLoading: true,
+          baseColor: shimmerBaseColor ?? const Color(0xFF383838),
+          highlightColor: shimmerHighlightColor ?? const Color(0xFF484848),
           child: Container(
             width: width,
             height: height,
             decoration: BoxDecoration(
-              color: Colors.grey.shade200,
+              color: AppColors.containerBgColor,
               borderRadius: borderRadius,
             ),
           ),
@@ -105,7 +110,7 @@ class AppCachedImage extends StatelessWidget {
         errorWidget: (context, url, error) => Container(
           width: width,
           height: height,
-          color: Colors.grey.shade200,
+          color: AppColors.containerBgColor,
           child: Icon(
             icon,
             color: iconColor,

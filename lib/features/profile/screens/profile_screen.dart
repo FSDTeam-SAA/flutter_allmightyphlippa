@@ -64,6 +64,8 @@ class ProfileScreen extends StatelessWidget {
                               height: 80,
                               borderRadius: BorderRadius.circular(12),
                               fit: BoxFit.cover,
+                              shimmerBaseColor: AppColors.containerBgColor,
+                              shimmerHighlightColor: AppColors.containerBgColor,
                               onTap: () {},
                             )
                           : ClipRRect(
@@ -189,6 +191,10 @@ class ProfileScreen extends StatelessWidget {
                                               child: AppCachedImage(
                                                 imageUrl: history.thumbnail,
                                                 fit: BoxFit.cover,
+                                                shimmerBaseColor:
+                                                    AppColors.containerBgColor,
+                                                shimmerHighlightColor:
+                                                    AppColors.containerBgColor,
                                                 onTap: () {},
                                               ),
                                             )
