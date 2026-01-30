@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:flutx_core/flutx_core.dart';
 
 import '../../../core/services/auth_storage_service.dart';
+import '../../playlist/screens/playlist_list_screen.dart';
 
 class RegisterController extends GetxController {
   final AuthRepo _authRepo = Get.find<AuthRepo>();
@@ -92,6 +93,8 @@ class RegisterController extends GetxController {
             role: data.role,
             userId: data.id ?? '',
           );
+
+          Get.to(() => const PlaylistListScreen());
         },
       );
     }

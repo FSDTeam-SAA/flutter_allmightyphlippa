@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_almightyflippa/core/common/widgets/app_scaffold.dart';
-import 'package:flutter_almightyflippa/core/common/widgets/button_widgets.dart';
-import 'package:flutter_almightyflippa/core/constants/app_colors.dart';
+import '/core/common/widgets/app_scaffold.dart';
+import '/core/common/widgets/button_widgets.dart';
+import '/core/constants/app_colors.dart';
+import '/features/profile/controller/profile_controller.dart';
 import 'package:flutx_core/flutx_core.dart';
 import 'package:get/get.dart';
 import '../controllers/playlist_controller.dart';
@@ -15,20 +16,38 @@ class PlaylistListScreen extends StatelessWidget {
     final playlistCtrl = Get.put(PlaylistController());
 
     return AppScaffold(
+      appBar: AppBar(
+        title: const Text("Playlists"),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.person),
+            color: AppColors.primaryBlack,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            onSelected: (value) {
+              if (value == 'logout') {
+                Get.put(ProfileController()).logout();
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem<String>(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout, color: Colors.white, size: 20),
+                    Gap(w: 12),
+                    Text("Logout", style: TextStyle(color: Colors.white)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Gap(h: 40),
-          Text(
-            "Your Playlists",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: AppColors.primaryWhite,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const Gap(h: 20),
           Expanded(
             child: Obx(() {
               if (playlistCtrl.isFetchingList.value &&
@@ -108,8 +127,11 @@ class PlaylistListScreen extends StatelessWidget {
                               Icons.delete_outline,
                               color: Colors.red,
                             ),
-                            onPressed: () =>
-                                _showDeleteDialog(context, playlistCtrl),
+                            onPressed: () => _showDeleteDialog(
+                              context,
+                              playlistCtrl,
+                              playlist.id!,
+                            ),
                           ),
                           SecondaryButton(
                             text: "Select",
@@ -137,7 +159,11 @@ class PlaylistListScreen extends StatelessWidget {
     );
   }
 
-  void _showDeleteDialog(BuildContext context, PlaylistController controller) {
+  void _showDeleteDialog(
+    BuildContext context,
+    PlaylistController controller,
+    String id,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -156,6 +182,7 @@ class PlaylistListScreen extends StatelessWidget {
             child: const Text("Delete", style: TextStyle(color: Colors.red)),
             onPressed: () {
               Get.back();
+              controller.deletePlaylist(id);
             },
           ),
         ],

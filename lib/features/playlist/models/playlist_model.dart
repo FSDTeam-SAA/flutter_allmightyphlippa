@@ -3,8 +3,9 @@ class PlaylistModel {
   final String? userName;
   final String? password;
   final String? url;
+  final String? id;
 
-  PlaylistModel({this.name, this.userName, this.password, this.url});
+  PlaylistModel({this.name, this.userName, this.password, this.url, this.id});
 
   factory PlaylistModel.fromJson(Map<String, dynamic> json) {
     return PlaylistModel(
@@ -12,6 +13,7 @@ class PlaylistModel {
       userName: json['userName'],
       password: json['password'],
       url: json['url'],
+      id: json['_id'],
     );
   }
 

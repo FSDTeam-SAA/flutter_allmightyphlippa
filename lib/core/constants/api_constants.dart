@@ -60,13 +60,14 @@ class AuthEndpoints {
   final String refreshToken = '$_base/refresh-token';
 
   // final String logout = '$_base/logout';
-  final String deleteAccount = '$_base/delete-account';
+  
 }
 
 class UserEndpoints {
   static const String _base = '${ApiConstants.baseUrl}/user';
 
   final String profile = '$_base/profile';
+  final String deleteAccount = '$_base/delete-account';
 }
 
 class PlaylistEndpoints {

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_almightyflippa/core/services/auth_storage_service.dart';
 import 'package:flutter_almightyflippa/features/bottom_nav/screens/bottom_nav_screen.dart';
+import 'package:flutter_almightyflippa/features/movie/controllers/movie_controller.dart';
+import 'package:flutter_almightyflippa/features/series/controllers/series_controller.dart';
+import 'package:flutter_almightyflippa/features/tv/controllers/live_tv_controller.dart';
 import 'package:get/get.dart';
 import '../models/playlist_data.dart';
 import '../models/playlist_model.dart';
@@ -112,6 +115,10 @@ class PlaylistController extends GetxController {
           usernameController.clear();
           passwordController.clear();
           urlController.clear();
+
+          Get.put(MovieController()).onInit();
+          Get.put(SeriesController()).onInit();
+          Get.put(LiveTvController()).onInit();
 
           Get.to(() => BottomNavScreen());
         },

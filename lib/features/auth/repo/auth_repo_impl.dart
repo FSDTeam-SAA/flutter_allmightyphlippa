@@ -43,7 +43,7 @@ class AuthRepoImpl implements AuthRepo {
   @override
   NetworkResult<void> deleteAccount() {
     return _apiClient.delete(
-      endpoint: ApiConstants.auth.deleteAccount,
+      endpoint: ApiConstants.user.deleteAccount,
       fromJsonT: (json) => {},
     );
   }

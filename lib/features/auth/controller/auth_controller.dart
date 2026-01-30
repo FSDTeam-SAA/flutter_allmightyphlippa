@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_almightyflippa/features/profile/controller/profile_controller.dart';
 import 'package:get/get.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -85,19 +86,14 @@ class AuthController extends GetxController {
   }
 
   Future<void> deleteAccount() async {
-    isLoading.value = true;
-
     final result = await _authRepo.deleteAccount();
-
-    isLoading.value = false;
 
     result.fold(
       (failure) {
         errorMessage.value = failure.message;
       },
       (success) {
-        Get.back();
-        _clearFields();
+        Get.put(ProfileController()).logout();
       },
     );
   }

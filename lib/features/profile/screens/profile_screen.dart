@@ -381,15 +381,6 @@ class ProfileScreen extends StatelessWidget {
                             Row(
                               children: [
                                 Expanded(
-                                  child: SecondaryButton(
-                                    text: "Cancel",
-                                    height: 45,
-                                    borderRadius: 45,
-                                    onSimplePressed: () => Get.back(),
-                                  ),
-                                ),
-                                Gap.w16,
-                                Expanded(
                                   child: PrimaryButton(
                                     text: "Delete",
                                     height: 45,
@@ -398,7 +389,18 @@ class ProfileScreen extends StatelessWidget {
                                     textColor: Colors.white,
                                     onSimplePressed: () {
                                       Get.put(AuthController()).deleteAccount();
+                                      Get.back();
+                                      
                                     },
+                                  ),
+                                ),
+                                Gap.w16,
+                                Expanded(
+                                  child: SecondaryButton(
+                                    text: "Cancel",
+                                    height: 45,
+                                    borderRadius: 45,
+                                    onSimplePressed: () => Get.back(),
                                   ),
                                 ),
                               ],
