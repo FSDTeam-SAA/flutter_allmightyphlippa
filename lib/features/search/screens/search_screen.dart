@@ -126,12 +126,6 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.sentiment_dissatisfied_rounded,
-                  size: 80,
-                  color: AppColors.red.withAlpha(150),
-                ),
-                const SizedBox(height: 16),
                 Text(
                   'No results found for "${_state.query.value}"',
                   textAlign: TextAlign.center,
