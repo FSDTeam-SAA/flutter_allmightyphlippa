@@ -9,6 +9,9 @@ import 'package:flutter_almightyflippa/features/video/repositories/video_status_
 import 'package:flutter_almightyflippa/features/video/repositories/video_status_repo_impl.dart';
 import 'package:get/get.dart';
 
+import '../../features/search/repositories/search_repo.dart';
+import '../../features/search/repositories/search_repo_impl.dart';
+
 import '../../features/auth/repo/auth_repo.dart';
 import '../../features/movie/repositories/movie_repo.dart';
 import '../../features/movie/repositories/movie_repo_impl.dart';
@@ -47,6 +50,11 @@ Future<void> setupRepository() async {
 
   Get.getOrPutLazy<VideoStatusRepo>(
     () => VideoStatusRepoImpl(apiClient: Get.find()),
+    fenix: true,
+  );
+
+  Get.getOrPutLazy<SearchRepo>(
+    () => SearchRepoImpl(apiClient: Get.find()),
     fenix: true,
   );
 }

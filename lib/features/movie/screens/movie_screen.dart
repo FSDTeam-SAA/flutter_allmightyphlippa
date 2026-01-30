@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_almightyflippa/core/constants/app_colors.dart';
 import 'package:get/get.dart';
 
+import 'package:flutter_almightyflippa/features/search/widgets/search_section_widget.dart';
 import '../../playlist/models/server_request_model.dart';
 import '../../video/screens/video_play_screen.dart';
 import '../controllers/movie_controller.dart';
@@ -53,27 +54,7 @@ class _MovieScreenState extends State<MovieScreen> {
 
       return Column(
         children: [
-          // Search Bar - Fixed at top
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search',
-                hintStyle: const TextStyle(color: AppColors.hintText),
-                prefixIcon: const Icon(
-                  Icons.search,
-                  color: AppColors.iconColor,
-                ),
-                filled: true,
-                fillColor: AppColors.containerBgColor,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              style: const TextStyle(color: AppColors.primaryWhite),
-            ),
-          ),
+          const SearchSectionWidget(type: ServerType.movies),
 
           Expanded(
             child: RefreshIndicator.adaptive(

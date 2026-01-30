@@ -8,6 +8,7 @@ class ServerRequestModel {
   final String username;
   final String password;
   final String type;
+  final String? search;
   final int limit;
   final int page;
 
@@ -16,6 +17,7 @@ class ServerRequestModel {
     required this.username,
     required this.password,
     required this.type,
+    this.search,
     this.limit = 50,
     this.page = 1,
   });
@@ -23,6 +25,7 @@ class ServerRequestModel {
   /// Creates a request model using the centralized playlist data from storage.
   static Future<ServerRequestModel> fromStorage({
     required ServerType type,
+    String? search,
     int limit = 50,
     int page = 1,
     required AuthStorageService storage,
@@ -33,6 +36,7 @@ class ServerRequestModel {
       username: playlistData.username,
       password: playlistData.password,
       type: type.name,
+      search: search,
       limit: limit,
       page: page,
     );
@@ -44,6 +48,7 @@ class ServerRequestModel {
       'username': username,
       'password': password,
       'type': type,
+      'search': search,
       'limit': limit,
       'page': page,
     };
