@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_almightyflippa/core/services/auth_storage_service.dart';
 import 'package:flutter_almightyflippa/features/bottom_nav/screens/bottom_nav_screen.dart';
 import 'package:flutter_almightyflippa/features/movie/controllers/movie_controller.dart';
+import 'package:flutter_almightyflippa/features/profile/controller/profile_controller.dart';
 import 'package:flutter_almightyflippa/features/series/controllers/series_controller.dart';
 import 'package:flutter_almightyflippa/features/tv/controllers/live_tv_controller.dart';
 import 'package:get/get.dart';
@@ -50,6 +51,13 @@ class PlaylistController extends GetxController {
     passwordFocus.dispose();
     urlFocus.dispose();
     super.onClose();
+  }
+
+  void updateControllers() {
+    Get.put(MovieController()).onInit();
+    Get.put(SeriesController()).onInit();
+    Get.put(LiveTvController()).onInit();
+    Get.put(ProfileController()).onInit();
   }
 
   Future<void> fetchPlaylists() async {
@@ -116,9 +124,7 @@ class PlaylistController extends GetxController {
           passwordController.clear();
           urlController.clear();
 
-          Get.put(MovieController()).onInit();
-          Get.put(SeriesController()).onInit();
-          Get.put(LiveTvController()).onInit();
+          updateControllers();
 
           Get.to(() => BottomNavScreen());
         },
@@ -152,6 +158,8 @@ class PlaylistController extends GetxController {
       password: playlist.password ?? '',
     );
     await _authStorageService.savePlaylistData(playlistData);
+
+    updateControllers();
 
     Get.offAll(() => BottomNavScreen());
   }
