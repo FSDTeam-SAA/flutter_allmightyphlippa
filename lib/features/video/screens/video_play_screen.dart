@@ -6,6 +6,7 @@ import '/core/constants/app_colors.dart';
 import 'package:get/get.dart';
 
 import '../controllers/video_play_controller.dart';
+import 'package:floating/floating.dart';
 
 class VideoPlayScreen extends StatefulWidget {
   final int streamId;
@@ -20,17 +21,37 @@ class VideoPlayScreen extends StatefulWidget {
   State<VideoPlayScreen> createState() => _VideoPlayScreenState();
 }
 
-class _VideoPlayScreenState extends State<VideoPlayScreen> {
+class _VideoPlayScreenState extends State<VideoPlayScreen>
+    with WidgetsBindingObserver {
   final controller = Get.put(VideoPlayController());
   final ScrollController _scrollController = ScrollController();
+
+  late Floating pip;
+  bool isPipAvailable = false;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addObserver(this);
+    pip = Floating();
+    _checkPipAvailability();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.initializeVideo(type: widget.type, streamId: widget.streamId);
     });
+  }
+
+  Future<void> _checkPipAvailability() async {
+    isPipAvailable = await pip.isPipAvailable;
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.hidden &&
+        isPipAvailable &&
+        controller.isVideoInitialized.value) {
+      pip.enable(const ImmediatePiP(aspectRatio: Rational.landscape()));
+    }
   }
 
   void _onScroll() {
@@ -47,6 +68,7 @@ class _VideoPlayScreenState extends State<VideoPlayScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     // Explicitly delete the controller to ensure player is disposed and video stops.
     Get.delete<VideoPlayController>();
     super.dispose();
@@ -54,198 +76,234 @@ class _VideoPlayScreenState extends State<VideoPlayScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.primaryBlack,
-      body: SafeArea(
-        child: Obx(() {
-          if (controller.isLoading.value) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.red),
-            );
-          }
+    return PiPSwitcher(
+      childWhenDisabled: Scaffold(
+        backgroundColor: AppColors.primaryBlack,
+        body: SafeArea(
+          child: Obx(() {
+            if (controller.isLoading.value) {
+              return const Center(
+                child: CircularProgressIndicator(color: AppColors.red),
+              );
+            }
 
-          // Access reactive data here to ensure this Obx rebuilds when lists change
-          final movies = controller.movieCtrl.movies;
-          final series = controller.seriesCtrl.series;
-          final singleSeries = controller.seriesCtrl.singleSeries.value;
+            // Access reactive data here to ensure this Obx rebuilds when lists change
+            final movies = controller.movieCtrl.movies;
+            final series = controller.seriesCtrl.series;
+            final singleSeries = controller.seriesCtrl.singleSeries.value;
 
-          return Column(
-            children: [
-              // Fixed Video Player
-              Container(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.6,
+            return Column(
+              children: [
+                // Fixed Video Player
+                Container(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.6,
+                  ),
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Stack(
+                      children: [
+                        Container(
+                          color: Colors.black,
+                          child: controller.isVideoInitialized.value
+                              ? Video(controller: controller.videoController)
+                              : const Center(
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.red,
+                                  ),
+                                ),
+                        ),
+                        const Positioned(
+                          top: 10,
+                          left: 10,
+                          child: BackButton(color: Colors.white),
+                        ),
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.picture_in_picture_alt,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () {
+                                  if (isPipAvailable) {
+                                    pip.enable(
+                                      const ImmediatePiP(
+                                        aspectRatio: Rational.landscape(),
+                                      ),
+                                    );
+                                  } else {
+                                    Get.snackbar(
+                                      'Error',
+                                      'PiP is not available on this device',
+                                    );
+                                  }
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.settings,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () {
+                                  _showSettingsDialog(context);
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                child: AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: Stack(
-                    children: [
-                      Container(
-                        color: Colors.black,
-                        child: controller.isVideoInitialized.value
-                            ? Video(controller: controller.videoController,)
-                            : const Center(
+
+                // Scrollable Content
+                Expanded(
+                  child: CustomScrollView(
+                    controller: _scrollController,
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                controller.title,
+                                style: Theme.of(context).textTheme.headlineSmall
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                controller.subTitle,
+                                style: const TextStyle(
+                                  color: AppColors.primaryGray,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                controller.description,
+                                style: const TextStyle(
+                                  color: AppColors.primaryGray,
+                                  fontSize: 14,
+                                  height: 1.5,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  InkWell(
+                                    onTap: () => controller.toggleFavorite(),
+                                    child: Column(
+                                      children: [
+                                        Obx(() {
+                                          return Icon(
+                                            controller.isLoved.value
+                                                ? Icons.favorite
+                                                : Icons.favorite_border,
+                                            color: Colors.white,
+                                            size: 30,
+                                          );
+                                        }),
+
+                                        Text(
+                                          "Favourite",
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // Related List or Episodes
+                      if (controller.currentType.value == ServerType.movies)
+                        _buildMovieList(context, movies)
+                      else if (controller.currentType.value ==
+                          ServerType.series) ...[
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 8.0,
+                            ),
+                            child: Text(
+                              'Episodes',
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(
+                                    color: AppColors.primaryWhite,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                          ),
+                        ),
+                        _buildEpisodeList(context, singleSeries),
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 16.0,
+                            ),
+                            child: Text(
+                              'Other Series',
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(
+                                    color: AppColors.primaryWhite,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                          ),
+                        ),
+                        _buildSeriesList(context, series),
+                      ],
+
+                      // Loading Indicator for Pagination
+                      SliverToBoxAdapter(
+                        child: Obx(() {
+                          final isMoreLoading =
+                              controller.currentType.value == ServerType.movies
+                              ? controller.movieCtrl.isMoreLoading.value
+                              : controller.seriesCtrl.isMoreLoading.value;
+                          if (isMoreLoading) {
+                            return const Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: Center(
                                 child: CircularProgressIndicator(
                                   color: AppColors.red,
                                 ),
                               ),
-                      ),
-                      const Positioned(
-                        top: 10,
-                        left: 10,
-                        child: BackButton(color: Colors.white),
-                      ),
-                      Positioned(
-                        top: 10,
-                        right: 10,
-                        child: IconButton(
-                          icon: const Icon(Icons.settings, color: Colors.white),
-                          onPressed: () {
-                            _showSettingsDialog(context);
-                          },
-                        ),
+                            );
+                          }
+                          return const SizedBox(height: 20);
+                        }),
                       ),
                     ],
                   ),
                 ),
-              ),
-
-              // Scrollable Content
-              Expanded(
-                child: CustomScrollView(
-                  controller: _scrollController,
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              controller.title,
-                              style: Theme.of(context).textTheme.headlineSmall
-                                  ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              controller.subTitle,
-                              style: const TextStyle(
-                                color: AppColors.primaryGray,
-                                fontSize: 14,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              controller.description,
-                              style: const TextStyle(
-                                color: AppColors.primaryGray,
-                                fontSize: 14,
-                                height: 1.5,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                InkWell(
-                                  onTap: () => controller.toggleFavorite(),
-                                  child: Column(
-                                    children: [
-                                      Obx(() {
-                                        return Icon(
-                                          controller.isLoved.value
-                                              ? Icons.favorite
-                                              : Icons.favorite_border,
-                                          color: Colors.white,
-                                          size: 30,
-                                        );
-                                      }),
-
-                                      Text(
-                                        "Favourite",
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    // Related List or Episodes
-                    if (controller.currentType.value == ServerType.movies)
-                      _buildMovieList(context, movies)
-                    else if (controller.currentType.value ==
-                        ServerType.series) ...[
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 8.0,
-                          ),
-                          child: Text(
-                            'Episodes',
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(
-                                  color: AppColors.primaryWhite,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ),
-                      ),
-                      _buildEpisodeList(context, singleSeries),
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 16.0,
-                          ),
-                          child: Text(
-                            'Other Series',
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(
-                                  color: AppColors.primaryWhite,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ),
-                      ),
-                      _buildSeriesList(context, series),
-                    ],
-
-                    // Loading Indicator for Pagination
-                    SliverToBoxAdapter(
-                      child: Obx(() {
-                        final isMoreLoading =
-                            controller.currentType.value == ServerType.movies
-                            ? controller.movieCtrl.isMoreLoading.value
-                            : controller.seriesCtrl.isMoreLoading.value;
-                        if (isMoreLoading) {
-                          return const Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                color: AppColors.red,
-                              ),
-                            ),
-                          );
-                        }
-                        return const SizedBox(height: 20);
-                      }),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          );
-        }),
+              ],
+            );
+          }),
+        ),
       ),
+      childWhenEnabled: Obx(() {
+        return controller.isVideoInitialized.value
+            ? Video(controller: controller.videoController)
+            : const Center(
+                child: CircularProgressIndicator(color: AppColors.red),
+              );
+      }),
     );
   }
 
