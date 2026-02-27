@@ -16,6 +16,7 @@ class LiveTvScreen extends StatefulWidget {
 class _LiveTvScreenState extends State<LiveTvScreen> {
   final liveTvCtrl = Get.find<LiveTvController>();
   final ScrollController _scrollController = ScrollController();
+  bool _showBackToTop = false;
 
   @override
   void initState() {
@@ -30,6 +31,18 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
   }
 
   void _onScroll() {
+    // Scroll to Top visibility
+    if (_scrollController.offset >= 400 && !_showBackToTop) {
+      setState(() {
+        _showBackToTop = true;
+      });
+    } else if (_scrollController.offset < 400 && _showBackToTop) {
+      setState(() {
+        _showBackToTop = false;
+      });
+    }
+
+    // Load more
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       liveTvCtrl.getLiveTvList(isLoadMore: true);
@@ -193,6 +206,20 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
           ],
         );
       }),
+      floatingActionButton: _showBackToTop
+          ? FloatingActionButton(
+              onPressed: () {
+                _scrollController.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                );
+              },
+              backgroundColor: AppColors.red,
+              mini: true,
+              child: const Icon(Icons.arrow_upward, color: Colors.white),
+            )
+          : null,
     );
   }
 
