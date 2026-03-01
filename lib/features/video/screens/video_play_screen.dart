@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_almightyflippa/features/playlist/models/server_request_model.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -26,7 +28,7 @@ class _VideoPlayScreenState extends State<VideoPlayScreen>
   final controller = Get.put(VideoPlayController());
   final ScrollController _scrollController = ScrollController();
 
-  late Floating pip;
+  Floating? pip;
   bool isPipAvailable = false;
 
   @override
@@ -34,23 +36,33 @@ class _VideoPlayScreenState extends State<VideoPlayScreen>
     super.initState();
     _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addObserver(this);
-    pip = Floating();
-    _checkPipAvailability();
+    if (Platform.isAndroid || Platform.isIOS) {
+      pip = Floating();
+      _checkPipAvailability();
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.initializeVideo(type: widget.type, streamId: widget.streamId);
     });
   }
 
   Future<void> _checkPipAvailability() async {
-    isPipAvailable = await pip.isPipAvailable;
+    if (pip == null) return;
+    try {
+      isPipAvailable = await pip!.isPipAvailable;
+    } catch (e) {
+      debugPrint('PiP check error: $e');
+      isPipAvailable = false;
+    }
+    setState(() {});
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.hidden &&
         isPipAvailable &&
+        pip != null &&
         controller.isVideoInitialized.value) {
-      pip.enable(const ImmediatePiP(aspectRatio: Rational.landscape()));
+      pip!.enable(const ImmediatePiP(aspectRatio: Rational.landscape()));
     }
   }
 
@@ -76,234 +88,233 @@ class _VideoPlayScreenState extends State<VideoPlayScreen>
 
   @override
   Widget build(BuildContext context) {
-    return PiPSwitcher(
-      childWhenDisabled: Scaffold(
-        backgroundColor: AppColors.primaryBlack,
-        body: SafeArea(
-          child: Obx(() {
-            if (controller.isLoading.value) {
-              return const Center(
-                child: CircularProgressIndicator(color: AppColors.red),
-              );
-            }
+    // Temporarily disabled PiPSwitcher to debug blank screen issue.
+    // We will return only the main content for now.
+    return _buildMainContent(context);
+  }
 
-            // Access reactive data here to ensure this Obx rebuilds when lists change
-            final movies = controller.movieCtrl.movies;
-            final series = controller.seriesCtrl.series;
-            final singleSeries = controller.seriesCtrl.singleSeries.value;
+  Widget _buildMainContent(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.primaryBlack,
+      body: SafeArea(
+        child: Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(
+              child: CircularProgressIndicator(color: AppColors.red),
+            );
+          }
 
-            return Column(
-              children: [
-                // Fixed Video Player
-                Container(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.6,
-                  ),
-                  child: AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Stack(
-                      children: [
-                        Container(
-                          color: Colors.black,
-                          child: controller.isVideoInitialized.value
-                              ? Video(controller: controller.videoController)
-                              : const Center(
-                                  child: CircularProgressIndicator(
-                                    color: AppColors.red,
-                                  ),
-                                ),
-                        ),
-                        const Positioned(
-                          top: 10,
-                          left: 10,
-                          child: BackButton(color: Colors.white),
-                        ),
-                        Positioned(
-                          top: 10,
-                          right: 10,
-                          child: Row(
-                            children: [
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.picture_in_picture_alt,
-                                  color: Colors.white,
-                                ),
-                                onPressed: () {
-                                  if (isPipAvailable) {
-                                    pip.enable(
-                                      const ImmediatePiP(
-                                        aspectRatio: Rational.landscape(),
-                                      ),
-                                    );
-                                  } else {
-                                    Get.snackbar(
-                                      'Error',
-                                      'PiP is not available on this device',
-                                    );
-                                  }
-                                },
-                              ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.settings,
-                                  color: Colors.white,
-                                ),
-                                onPressed: () {
-                                  _showSettingsDialog(context);
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+          // Access reactive data here to ensure this Obx rebuilds when lists change
+          final movies = controller.movieCtrl.movies;
+          final series = controller.seriesCtrl.series;
+          final singleSeries = controller.seriesCtrl.singleSeries.value;
 
-                // Scrollable Content
-                Expanded(
-                  child: CustomScrollView(
-                    controller: _scrollController,
-                    slivers: [
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                controller.title,
-                                style: Theme.of(context).textTheme.headlineSmall
-                                    ?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                controller.subTitle,
-                                style: const TextStyle(
-                                  color: AppColors.primaryGray,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                controller.description,
-                                style: const TextStyle(
-                                  color: AppColors.primaryGray,
-                                  fontSize: 14,
-                                  height: 1.5,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  InkWell(
-                                    onTap: () => controller.toggleFavorite(),
-                                    child: Column(
-                                      children: [
-                                        Obx(() {
-                                          return Icon(
-                                            controller.isLoved.value
-                                                ? Icons.favorite
-                                                : Icons.favorite_border,
-                                            color: Colors.white,
-                                            size: 30,
-                                          );
-                                        }),
-
-                                        Text(
-                                          "Favourite",
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+          return Column(
+            children: [
+              // Fixed Video Player
+              Container(
+                width: MediaQuery.of(context).size.width,
+                color: Colors.black,
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: Stack(
+                    children: [
+                      Video(
+                        controller: controller.videoController,
+                        key: ValueKey('video_${widget.streamId}'),
+                        fit: BoxFit.contain,
+                        fill: Colors.black,
                       ),
-
-                      // Related List or Episodes
-                      if (controller.currentType.value == ServerType.movies)
-                        _buildMovieList(context, movies)
-                      else if (controller.currentType.value ==
-                          ServerType.series) ...[
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                              vertical: 8.0,
-                            ),
-                            child: Text(
-                              'Episodes',
-                              style: Theme.of(context).textTheme.titleLarge
-                                  ?.copyWith(
-                                    color: AppColors.primaryWhite,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                          ),
-                        ),
-                        _buildEpisodeList(context, singleSeries),
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                              vertical: 16.0,
-                            ),
-                            child: Text(
-                              'Other Series',
-                              style: Theme.of(context).textTheme.titleLarge
-                                  ?.copyWith(
-                                    color: AppColors.primaryWhite,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                          ),
-                        ),
-                        _buildSeriesList(context, series),
-                      ],
-
-                      // Loading Indicator for Pagination
-                      SliverToBoxAdapter(
-                        child: Obx(() {
-                          final isMoreLoading =
-                              controller.currentType.value == ServerType.movies
-                              ? controller.movieCtrl.isMoreLoading.value
-                              : controller.seriesCtrl.isMoreLoading.value;
-                          if (isMoreLoading) {
-                            return const Padding(
-                              padding: EdgeInsets.all(16.0),
-                              child: Center(
-                                child: CircularProgressIndicator(
-                                  color: AppColors.red,
-                                ),
+                      Obx(() {
+                        if (!controller.isVideoInitialized.value) {
+                          return const Positioned.fill(
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.red,
                               ),
-                            );
-                          }
-                          return const SizedBox(height: 20);
-                        }),
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      }),
+                      const Positioned(
+                        top: 10,
+                        left: 10,
+                        child: BackButton(color: Colors.white),
                       ),
+                      // Positioned(
+                      //   top: 10,
+                      //   right: 10,
+                      //   child: Row(
+                      //     children: [
+                      //       if (isPipAvailable)
+                      //         IconButton(
+                      //           icon: const Icon(
+                      //             Icons.picture_in_picture_alt,
+                      //             color: Colors.white,
+                      //           ),
+                      //           onPressed: () {
+                      //             if (pip != null) {
+                      //               pip!.enable(
+                      //                 const ImmediatePiP(
+                      //                   aspectRatio: Rational.landscape(),
+                      //                 ),
+                      //               );
+                      //             }
+                      //           },
+                      //         ),
+                      //       IconButton(
+                      //         icon: const Icon(
+                      //           Icons.settings,
+                      //           color: Colors.white,
+                      //         ),
+                      //         onPressed: () {
+                      //           _showSettingsDialog(context);
+                      //         },
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
-              ],
-            );
-          }),
-        ),
+              ),
+
+              // Scrollable Content
+              Expanded(
+                child: CustomScrollView(
+                  controller: _scrollController,
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              controller.title,
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              controller.subTitle,
+                              style: const TextStyle(
+                                color: AppColors.primaryGray,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              controller.description,
+                              style: const TextStyle(
+                                color: AppColors.primaryGray,
+                                fontSize: 14,
+                                height: 1.5,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                InkWell(
+                                  onTap: () => controller.toggleFavorite(),
+                                  child: Column(
+                                    children: [
+                                      Obx(() {
+                                        return Icon(
+                                          controller.isLoved.value
+                                              ? Icons.favorite
+                                              : Icons.favorite_border,
+                                          color: Colors.white,
+                                          size: 30,
+                                        );
+                                      }),
+                                      const Text(
+                                        "Favourite",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Related List or Episodes
+                    if (controller.currentType.value == ServerType.movies)
+                      _buildMovieList(context, movies)
+                    else if (controller.currentType.value ==
+                        ServerType.series) ...[
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 8.0,
+                          ),
+                          child: Text(
+                            'Episodes',
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(
+                                  color: AppColors.primaryWhite,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                        ),
+                      ),
+                      _buildEpisodeList(context, singleSeries),
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 16.0,
+                          ),
+                          child: Text(
+                            'Other Series',
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(
+                                  color: AppColors.primaryWhite,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                        ),
+                      ),
+                      _buildSeriesList(context, series),
+                    ],
+
+                    // Loading Indicator for Pagination
+                    SliverToBoxAdapter(
+                      child: Obx(() {
+                        final isMoreLoading =
+                            controller.currentType.value == ServerType.movies
+                            ? controller.movieCtrl.isMoreLoading.value
+                            : controller.seriesCtrl.isMoreLoading.value;
+                        if (isMoreLoading) {
+                          return const Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.red,
+                              ),
+                            ),
+                          );
+                        }
+                        return const SizedBox(height: 20);
+                      }),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        }),
       ),
-      childWhenEnabled: Obx(() {
-        return controller.isVideoInitialized.value
-            ? Video(controller: controller.videoController)
-            : const Center(
-                child: CircularProgressIndicator(color: AppColors.red),
-              );
-      }),
     );
   }
 
