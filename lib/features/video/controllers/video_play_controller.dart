@@ -250,7 +250,7 @@ class VideoPlayController extends GetxController {
       await _initializePlayer(playUrl);
     } catch (e) {
       debugPrint('Error playing episode: $e');
-      Get.snackbar('Error', 'Failed to play episode');
+      // Get.snackbar('Error', 'Failed to play episode');
     }
   }
 
@@ -332,7 +332,7 @@ class VideoPlayController extends GetxController {
       _startPositionListener();
     } catch (e) {
       debugPrint('Error initializing video player: $e');
-      Get.snackbar('Error', 'Failed to load video');
+      // Get.snackbar('Error', 'Failed to load video');
     }
   }
 
