@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_almightyflippa/core/widgets/tv_focus_wrapper.dart';
 
 import 'package:flutter_almightyflippa/features/playlist/models/server_request_model.dart';
 import 'package:media_kit/media_kit.dart';
@@ -270,7 +271,7 @@ class _VideoPlayScreenState extends State<VideoPlayScreen>
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      InkWell(
+                                      TvFocusWrapper(
                                         onTap: () =>
                                             controller.toggleFavorite(),
                                         child: Column(
@@ -380,7 +381,7 @@ class _VideoPlayScreenState extends State<VideoPlayScreen>
         final movie = movies[index];
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: InkWell(
+          child: TvFocusWrapper(
             onTap: () {
               controller.initializeVideo(
                 type: ServerType.movies,
@@ -454,7 +455,7 @@ class _VideoPlayScreenState extends State<VideoPlayScreen>
         final item = series[index];
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: InkWell(
+          child: TvFocusWrapper(
             onTap: () {
               controller.initializeVideo(
                 type: ServerType.series,
@@ -546,7 +547,7 @@ class _VideoPlayScreenState extends State<VideoPlayScreen>
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: InkWell(
+          child: TvFocusWrapper(
             onTap: () {
               controller.playEpisode(episode);
               _scrollController.animateTo(

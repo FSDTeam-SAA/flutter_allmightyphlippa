@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_almightyflippa/core/constants/app_colors.dart';
+import 'package:flutter_almightyflippa/core/widgets/tv_focus_wrapper.dart';
 import 'package:get/get.dart';
 
 import 'package:flutter_almightyflippa/features/search/widgets/search_section_widget.dart';
@@ -186,7 +187,7 @@ class _MovieScreenState extends State<MovieScreen> {
                             horizontal: 16.0,
                             vertical: 8.0,
                           ),
-                          child: InkWell(
+                          child: TvFocusWrapper(
                             onTap: () {
                               Get.to(
                                 () => VideoPlayScreen(
