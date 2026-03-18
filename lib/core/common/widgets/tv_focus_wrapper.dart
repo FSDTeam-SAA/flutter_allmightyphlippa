@@ -1,5 +1,6 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
+import '../../constants/app_colors.dart';
 
 class TvFocusWrapper extends StatefulWidget {
   final Widget child;
@@ -27,6 +28,15 @@ class _TvFocusWrapperState extends State<TvFocusWrapper> {
         setState(() {
           _isFocused = hasFocus;
         });
+      },
+      onKeyEvent: (node, event) {
+        if (event is KeyDownEvent &&
+            (event.logicalKey == LogicalKeyboardKey.enter ||
+                event.logicalKey == LogicalKeyboardKey.select)) {
+          widget.onTap?.call();
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
       },
       child: InkWell(
         onTap: widget.onTap,

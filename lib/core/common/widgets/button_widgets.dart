@@ -1,5 +1,6 @@
 // import '/core/base/base_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_almightyflippa/core/common/widgets/tv_focus_wrapper.dart';
 import 'package:get/get.dart';
 
 import '../../constants/app_colors.dart';
@@ -40,7 +41,7 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLoading = Get.put(false.obs, tag: _uniqueTag);
 
-    return GestureDetector(
+    return TvFocusWrapper(
       onTap: onApiPressed != null
           ? () async {
               if (isLoading.value) return;
@@ -155,7 +156,7 @@ class SecondaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLoading = Get.put(false.obs, tag: _uniqueTag);
 
-    return GestureDetector(
+    return TvFocusWrapper(
       onTap: onApiPressed != null
           ? () async {
               if (isLoading.value) return;

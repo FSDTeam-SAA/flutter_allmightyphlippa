@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_almightyflippa/features/search/widgets/search_section_widget.dart';
+import '../../../core/common/widgets/tv_focus_wrapper.dart';
 import '../../playlist/models/server_request_model.dart';
 import '../../video/screens/video_play_screen.dart';
 import 'package:flutter_almightyflippa/features/series/controllers/series_controller.dart';
@@ -186,7 +187,7 @@ class _SeriesScreenState extends State<SeriesScreen> {
                             horizontal: 16.0,
                             vertical: 8.0,
                           ),
-                          child: InkWell(
+                          child: TvFocusWrapper(
                             onTap: () {
                               Get.to(
                                 () => VideoPlayScreen(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/common/widgets/tv_focus_wrapper.dart';
 import '/core/common/widgets/app_scaffold.dart';
 import '/core/common/widgets/button_widgets.dart';
 import '/core/constants/assest_const.dart' hide Icons;
@@ -148,7 +149,7 @@ class LoginScreen extends StatelessWidget {
                                 "Don’t have an account? ",
                                 style: TextStyle(color: AppColors.primaryGray),
                               ),
-                              GestureDetector(
+                              TvFocusWrapper(
                                 onTap: () => Get.to(() => const SignupScreen()),
                                 child: Text(
                                   'Sign Up',

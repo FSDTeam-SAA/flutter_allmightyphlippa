@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/common/widgets/tv_focus_wrapper.dart';
 import '../../video/screens/live_video_play_screen.dart';
 import '../controllers/live_tv_controller.dart';
 
@@ -118,7 +119,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                     }
 
                     final channel = liveTvCtrl.liveTvList[index];
-                    return InkWell(
+                    return TvFocusWrapper(
                       onTap: () {
                         // Live video play screen
                         Get.to(
@@ -128,7 +129,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                           ),
                         );
                       },
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: 12,
                       child: Container(
                         decoration: BoxDecoration(
                           color: AppColors.containerBgColor,

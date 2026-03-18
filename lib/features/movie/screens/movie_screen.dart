@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_almightyflippa/core/constants/app_colors.dart';
-import 'package:flutter_almightyflippa/core/widgets/tv_focus_wrapper.dart';
+import 'package:flutter_almightyflippa/core/common/widgets/tv_focus_wrapper.dart';
 import 'package:get/get.dart';
 
 import 'package:flutter_almightyflippa/features/search/widgets/search_section_widget.dart';

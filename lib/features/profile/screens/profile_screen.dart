@@ -12,6 +12,7 @@ import 'package:flutter_almightyflippa/features/video/screens/video_play_screen.
 
 import '../../../core/common/widgets/app_cached_image.dart';
 import '../../../core/common/widgets/button_widgets.dart';
+import '../../../core/common/widgets/tv_focus_wrapper.dart';
 import '../../auth/controller/auth_controller.dart';
 import '../../favourites/screens/favourite_screen.dart';
 import '../../history/screens/history_screen.dart';
@@ -159,7 +160,7 @@ class ProfileScreen extends StatelessWidget {
                         separatorBuilder: (context, index) => Gap.w12,
                         itemBuilder: (context, index) {
                           final history = profileCtrl.watchHistory[index];
-                          return GestureDetector(
+                          return TvFocusWrapper(
                             onTap: () {
                               final streamId = int.tryParse(history.videoId);
                               final type = history.videoType == 'movie'
@@ -390,7 +391,6 @@ class ProfileScreen extends StatelessWidget {
                                     onSimplePressed: () {
                                       Get.put(AuthController()).deleteAccount();
                                       Get.back();
-                                      
                                     },
                                   ),
                                 ),

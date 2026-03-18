@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_almightyflippa/core/widgets/tv_focus_wrapper.dart';
+import 'package:flutter_almightyflippa/core/common/widgets/tv_focus_wrapper.dart';
 
 import 'package:flutter_almightyflippa/features/playlist/models/server_request_model.dart';
 import 'package:media_kit/media_kit.dart';
@@ -154,14 +154,20 @@ class _VideoPlayScreenState extends State<VideoPlayScreen>
                             MaterialVideoControlsTheme(
                               normal: const MaterialVideoControlsThemeData(
                                 buttonBarHeight: 48.0,
+                                controlsHoverDuration: Duration(seconds: 10),
                               ),
                               fullscreen:
-                                  const MaterialVideoControlsThemeData(),
-                              child: Video(
-                                controller: controller.videoController,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: double.infinity,
+                                  const MaterialVideoControlsThemeData(
+                                controlsHoverDuration: Duration(seconds: 10),
+                              ),
+                              child: Focus(
+                                autofocus: true,
+                                child: Video(
+                                  controller: controller.videoController,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                ),
                               ),
                             ),
                             Obx(() {
@@ -182,10 +188,13 @@ class _VideoPlayScreenState extends State<VideoPlayScreen>
                               return const SizedBox.shrink();
                             }),
                             if (_pipStatus != PiPStatus.enabled) ...[
-                              const Positioned(
+                              Positioned(
                                 top: 10,
                                 left: 10,
-                                child: BackButton(color: Colors.white),
+                                child: TvFocusWrapper(
+                                  onTap: () => Navigator.pop(context),
+                                  child: const BackButton(color: Colors.white),
+                                ),
                               ),
                               Positioned(
                                 top: 10,
@@ -193,12 +202,8 @@ class _VideoPlayScreenState extends State<VideoPlayScreen>
                                 child: Row(
                                   children: [
                                     if (isPipAvailable)
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.picture_in_picture_alt,
-                                          color: Colors.white,
-                                        ),
-                                        onPressed: () {
+                                      TvFocusWrapper(
+                                        onTap: () {
                                           if (pip != null) {
                                             pip!.enable(
                                               const ImmediatePiP(
@@ -208,15 +213,25 @@ class _VideoPlayScreenState extends State<VideoPlayScreen>
                                             );
                                           }
                                         },
+                                        child: const Padding(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: Icon(
+                                            Icons.picture_in_picture_alt,
+                                            color: Colors.white,
+                                          ),
+                                        ),
                                       ),
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.settings,
-                                        color: Colors.white,
-                                      ),
-                                      onPressed: () {
+                                    TvFocusWrapper(
+                                      onTap: () {
                                         _showSettingsDialog(context);
                                       },
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Icon(
+                                          Icons.settings,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -683,7 +698,7 @@ class _VideoPlayScreenState extends State<VideoPlayScreen>
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        InkWell(
+                        TvFocusWrapper(
                           onTap: () => Navigator.pop(context),
                           child: Container(
                             padding: const EdgeInsets.all(4),
@@ -788,8 +803,8 @@ class _VideoPlayScreenState extends State<VideoPlayScreen>
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: const TextStyle(color: Colors.white)),
-        InkWell(
-          onTap: onTap,
+        TvFocusWrapper(
+          onTap: () => onTap(),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
@@ -958,7 +973,7 @@ class _VideoPlayScreenState extends State<VideoPlayScreen>
                       final isSelected =
                           controller.playbackSpeed.value == speed;
 
-                      return InkWell(
+                      return TvFocusWrapper(
                         onTap: () {
                           controller.setPlaybackSpeed(speed);
                           Navigator.pop(context);

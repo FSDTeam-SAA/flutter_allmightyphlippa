@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/common/widgets/tv_focus_wrapper.dart';
 import '/core/common/widgets/app_logo.dart';
 import '/core/common/widgets/button_widgets.dart';
 import '/core/constants/assest_const.dart' hide Icons;
@@ -20,7 +21,7 @@ class SignupScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final registerCtrl = Get.put(RegisterController());
 
-    return GestureDetector(
+    return TvFocusWrapper(
       onTap: () => FocusScope.of(context).unfocus(),
       child: AppScaffold(
         body: Align(
@@ -245,7 +246,7 @@ class SignupScreen extends StatelessWidget {
                               "Already have an account? ",
                               style: TextStyle(color: AppColors.primaryGray),
                             ),
-                            GestureDetector(
+                            TvFocusWrapper(
                               onTap: () => Get.back(),
                               child: Text(
                                 'Sign in',
