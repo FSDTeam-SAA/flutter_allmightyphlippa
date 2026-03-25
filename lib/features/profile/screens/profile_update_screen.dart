@@ -208,8 +208,8 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(
-                        color: AppColors.primaryWhite,
-                        width: 1,
+                        color: AppColors.red,
+                        width: 2.0,
                       ),
                     ),
                     errorBorder: OutlineInputBorder(
@@ -281,8 +281,8 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(
-                        color: AppColors.primaryWhite,
-                        width: 1,
+                        color: AppColors.red,
+                        width: 2.0,
                       ),
                     ),
                     errorBorder: OutlineInputBorder(

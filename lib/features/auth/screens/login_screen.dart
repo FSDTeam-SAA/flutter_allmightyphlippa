@@ -71,6 +71,7 @@ class LoginScreen extends StatelessWidget {
                         Gap.h12,
 
                         TextFormField(
+                          autofocus: true,
                           controller: loginCtrl.emailController,
                           focusNode: loginCtrl.emailFocus,
                           keyboardType: TextInputType.emailAddress,
@@ -126,9 +127,14 @@ class LoginScreen extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            TextButton(
-                              onPressed: () {},
-                              child: Text("Forget Password"),
+                            TvFocusWrapper(
+                              onTap: () {
+                                // TODO: Implement forget password
+                              },
+                              child: Text(
+                                "Forget Password",
+                                style: TextStyle(color: AppColors.primaryWhite),
+                              ),
                             ),
                           ],
                         ),

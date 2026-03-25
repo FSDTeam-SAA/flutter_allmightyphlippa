@@ -27,11 +27,11 @@ class PinCode extends StatelessWidget {
         spacing: 8, // Explicit spacing
 
         borderColor: Colors.transparent,
-        focusedBorderColor: Colors.transparent,
+        focusedBorderColor: Colors.red,
         filledBorderColor: Colors.transparent,
 
         fillColor: const Color(0xFF2E2E2E),
-        focusedFillColor: const Color(0xFF2E2E2E),
+        focusedFillColor: const Color(0xFF3D3D3D),
         filledFillColor: const Color(0xFF2E2E2E),
 
         cursorColor: Colors.black,

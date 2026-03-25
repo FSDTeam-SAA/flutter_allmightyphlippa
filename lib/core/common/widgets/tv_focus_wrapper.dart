@@ -28,6 +28,14 @@ class _TvFocusWrapperState extends State<TvFocusWrapper> {
         setState(() {
           _isFocused = hasFocus;
         });
+        if (hasFocus) {
+          Scrollable.ensureVisible(
+            context,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            alignment: 0.5,
+          );
+        }
       },
       onKeyEvent: (node, event) {
         if (event is KeyDownEvent &&

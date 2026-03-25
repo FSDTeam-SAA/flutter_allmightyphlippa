@@ -79,6 +79,7 @@ class SignupScreen extends StatelessWidget {
 
                         // Name field
                         TextFormField(
+                          autofocus: true,
                           controller: registerCtrl.nameController,
                           focusNode: registerCtrl.nameFocus,
                           keyboardType: TextInputType.text,
@@ -179,8 +180,9 @@ class SignupScreen extends StatelessWidget {
                         Gap.h16,
 
                         // Terms and Conditions
-                        Obx(
-                          () => CheckboxListTile(
+                        TvFocusWrapper(
+                          onTap: () => registerCtrl.toggleAgreeToTerms(),
+                          child: CheckboxListTile(
                             value: registerCtrl.agreeToTerms.value,
                             onChanged: (value) =>
                                 registerCtrl.toggleAgreeToTerms(),
@@ -226,7 +228,7 @@ class SignupScreen extends StatelessWidget {
                             ),
                             controlAffinity: ListTileControlAffinity.leading,
                             contentPadding: EdgeInsets.zero,
-                            activeColor: AppColors.primaryWhite,
+                            activeColor: AppColors.red,
                             checkColor: AppColors.primaryBlack,
                           ),
                         ),
