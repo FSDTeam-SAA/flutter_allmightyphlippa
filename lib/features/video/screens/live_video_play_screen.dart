@@ -33,7 +33,7 @@ class _LiveVideoPlayScreenState extends State<LiveVideoPlayScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (Platform.isAndroid) {
       pip = Floating();
       _checkPipAvailability();
     }

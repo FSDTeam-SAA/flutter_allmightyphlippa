@@ -40,7 +40,7 @@ class _VideoPlayScreenState extends State<VideoPlayScreen>
     super.initState();
     _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addObserver(this);
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (Platform.isAndroid) {
       pip = Floating();
       _checkPipAvailability();
       try {
