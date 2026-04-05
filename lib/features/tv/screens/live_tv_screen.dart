@@ -4,6 +4,9 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/common/widgets/tv_focus_wrapper.dart';
+import '../../playlist/models/server_request_model.dart';
+import '../../search/controllers/search_controller.dart';
+import '../../search/screens/search_screen.dart';
 import '../../video/screens/live_video_play_screen.dart';
 import '../controllers/live_tv_controller.dart';
 
@@ -16,6 +19,8 @@ class LiveTvScreen extends StatefulWidget {
 
 class _LiveTvScreenState extends State<LiveTvScreen> {
   final liveTvCtrl = Get.find<LiveTvController>();
+
+  final searchController = SearchingController();
   final ScrollController _scrollController = ScrollController();
   bool _showBackToTop = false;
 
@@ -71,29 +76,29 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
           children: [
             // Search Bar
             /// [Todo: Implement search bar later]
-            // Padding(
-            //   padding: const EdgeInsets.all(16.0),
-            //   child: TextField(
-            //     decoration: InputDecoration(
-            //       hintText: 'Search Channel',
-            //       hintStyle: const TextStyle(color: AppColors.hintText),
-            //       prefixIcon: const Icon(
-            //         Icons.search,
-            //         color: AppColors.iconColor,
-            //       ),
-            //       filled: true,
-            //       fillColor: AppColors.containerBgColor,
-            //       border: OutlineInputBorder(
-            //         borderRadius: BorderRadius.circular(8),
-            //         borderSide: BorderSide.none,
-            //       ),
-            //     ),
-            //     style: const TextStyle(color: AppColors.primaryWhite),
-            //     onChanged: (value) {
-            //       // TODO: Implement search logic if needed
-            //     },
-            //   ),
-            // ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                onTap: () =>
+                    Get.to(() => SearchScreen(type: ServerType.channels)),
+                readOnly: true,
+                decoration: InputDecoration(
+                  hintText: 'Search Channel',
+                  hintStyle: const TextStyle(color: AppColors.hintText),
+                  prefixIcon: const Icon(
+                    Icons.search,
+                    color: AppColors.iconColor,
+                  ),
+                  filled: true,
+                  fillColor: AppColors.containerBgColor,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                style: const TextStyle(color: AppColors.primaryWhite),
+              ),
+            ),
             Expanded(
               child: RefreshIndicator.adaptive(
                 onRefresh: () async {
