@@ -19,6 +19,7 @@ class PrimaryButton extends StatelessWidget {
   final Color backgroundColor;
   final Color textColor;
   final double borderRadius;
+  final FocusNode? focusNode;
 
   const PrimaryButton({
     super.key,
@@ -33,6 +34,7 @@ class PrimaryButton extends StatelessWidget {
     this.backgroundColor = AppColors.primaryWhite,
     this.textColor = AppColors.primaryBlack,
     this.borderRadius = 25.0,
+    this.focusNode,
   });
 
   String get _uniqueTag => tag ?? text;
@@ -42,6 +44,7 @@ class PrimaryButton extends StatelessWidget {
     final isLoading = Get.put(false.obs, tag: _uniqueTag);
 
     return TvFocusWrapper(
+      focusNode: focusNode,
       onTap: onApiPressed != null
           ? () async {
               if (isLoading.value) return;
@@ -129,6 +132,7 @@ class SecondaryButton extends StatelessWidget {
   final Color textColor;
   final Color? backgroundColor;
   final double borderRadius;
+  final FocusNode? focusNode;
   final double borderWidth;
   final Widget? iconLeft;
   final Widget? iconRight;
@@ -148,6 +152,7 @@ class SecondaryButton extends StatelessWidget {
     this.borderWidth = 1.0,
     this.iconLeft,
     this.iconRight,
+    this.focusNode,
   });
 
   String get _uniqueTag => tag ?? text;
@@ -157,6 +162,7 @@ class SecondaryButton extends StatelessWidget {
     final isLoading = Get.put(false.obs, tag: _uniqueTag);
 
     return TvFocusWrapper(
+      focusNode: focusNode,
       onTap: onApiPressed != null
           ? () async {
               if (isLoading.value) return;

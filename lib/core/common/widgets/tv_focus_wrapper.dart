@@ -6,12 +6,14 @@ class TvFocusWrapper extends StatefulWidget {
   final Widget child;
   final VoidCallback? onTap;
   final double borderRadius;
+  final FocusNode? focusNode;
 
   const TvFocusWrapper({
     super.key,
     required this.child,
     this.onTap,
     this.borderRadius = 8.0,
+    this.focusNode,
   });
 
   @override
@@ -23,7 +25,8 @@ class _TvFocusWrapperState extends State<TvFocusWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return Focus(
+    return InkWell(
+      focusNode: widget.focusNode,
       onFocusChange: (hasFocus) {
         setState(() {
           _isFocused = hasFocus;
@@ -37,29 +40,18 @@ class _TvFocusWrapperState extends State<TvFocusWrapper> {
           );
         }
       },
-      onKeyEvent: (node, event) {
-        if (event is KeyDownEvent &&
-            (event.logicalKey == LogicalKeyboardKey.enter ||
-                event.logicalKey == LogicalKeyboardKey.select)) {
-          widget.onTap?.call();
-          return KeyEventResult.handled;
-        }
-        return KeyEventResult.ignored;
-      },
-      child: InkWell(
-        onTap: widget.onTap,
-        borderRadius: BorderRadius.circular(widget.borderRadius),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(widget.borderRadius),
-            border: Border.all(
-              color: _isFocused ? AppColors.red : Colors.transparent,
-              width: 2,
-            ),
+      onTap: widget.onTap,
+      borderRadius: BorderRadius.circular(widget.borderRadius),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(widget.borderRadius),
+          border: Border.all(
+            color: _isFocused ? AppColors.red : Colors.transparent,
+            width: 2,
           ),
-          child: widget.child,
         ),
+        child: widget.child,
       ),
     );
   }

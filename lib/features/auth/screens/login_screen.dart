@@ -142,6 +142,7 @@ class LoginScreen extends StatelessWidget {
                         PrimaryButton(
                           text: "Login",
                           onApiPressed: () => loginCtrl.login(),
+                          focusNode: loginCtrl.loginButtonFocus,
                         ),
 
                         Gap.h24,
