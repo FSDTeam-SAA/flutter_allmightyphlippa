@@ -65,7 +65,10 @@ class LoginController extends GetxController {
             userId: data.user?.id ?? '',
           );
 
-          Get.to(() => const PlaylistListScreen());
+          // Unfocus keyboard before navigating
+          FocusManager.instance.primaryFocus?.unfocus();
+          
+          Get.offAll(() => const PlaylistListScreen());
         },
       );
     }

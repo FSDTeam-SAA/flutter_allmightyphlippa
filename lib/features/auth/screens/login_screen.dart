@@ -71,9 +71,7 @@ class LoginScreen extends StatelessWidget {
                         Gap.h12,
 
                         TextFormField(
-                          autofocus: true,
                           controller: loginCtrl.emailController,
-                          focusNode: loginCtrl.emailFocus,
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.next,
                           style: TextStyle(
@@ -84,9 +82,8 @@ class LoginScreen extends StatelessWidget {
                             hintText: "Email",
                           ),
                           validator: Validators.email,
-                          onFieldSubmitted: (_) => FocusScope.of(
-                            context,
-                          ).requestFocus(loginCtrl.passwordFocus),
+                          onFieldSubmitted: (_) =>
+                              FocusScope.of(context).nextFocus(),
                           autofillHints: const [AutofillHints.email],
                         ),
                         Gap.h16,
@@ -94,7 +91,6 @@ class LoginScreen extends StatelessWidget {
                         Obx(
                           () => TextFormField(
                             controller: loginCtrl.passwordController,
-                            focusNode: loginCtrl.passwordFocus,
                             obscureText: loginCtrl.obscurePassword.value,
                             textInputAction: TextInputAction.done,
                             style: TextStyle(color: AppColors.primaryWhite),
@@ -119,7 +115,9 @@ class LoginScreen extends StatelessWidget {
                               return null;
                             },
                             autofillHints: const [AutofillHints.password],
-                            onFieldSubmitted: (_) => loginCtrl.login(),
+                            onFieldSubmitted: (_) => FocusScope.of(
+                              context,
+                            ).requestFocus(loginCtrl.loginButtonFocus),
                           ),
                         ),
 
