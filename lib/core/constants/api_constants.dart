@@ -42,6 +42,8 @@ class ApiConstants {
   static ServerEndpoints get server => ServerEndpoints();
 
   static VideoEndpoints get video => VideoEndpoints();
+
+  static PaymentEndpoints get payment => PaymentEndpoints();
 }
 
 /// [Authentication Endpoints]
@@ -60,7 +62,6 @@ class AuthEndpoints {
   final String refreshToken = '$_base/refresh-token';
 
   // final String logout = '$_base/logout';
-  
 }
 
 class UserEndpoints {
@@ -92,4 +93,11 @@ class VideoEndpoints {
   final String getWatchHistory = '$_base/history';
   final String getVideoStatus = '$_base/status';
   final String getFavorites = '$_base/favorites';
+}
+
+class PaymentEndpoints {
+  static const String _base = '${ApiConstants.baseUrl}/payment';
+
+  final String getMySubscription = '$_base/my-subscription';
+  final String verifyApplePurchase = '$_base/verify-apple-purchase';
 }

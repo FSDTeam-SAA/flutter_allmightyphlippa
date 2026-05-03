@@ -19,6 +19,7 @@ import '../../app/screens/about_app_screen.dart';
 import '../../app/screens/privacy_policy_screen.dart';
 import '../../app/screens/terms_condition_screen.dart';
 import '../../auth/screens/change_password_screen.dart';
+import '../../subscription/screens/subscription_screen.dart';
 import 'profile_update_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -294,6 +295,19 @@ class ProfileScreen extends StatelessWidget {
 
               // Menu Items
               _buildMenuItem(
+                iconAsset: '', // Using Material Icon
+                title: "Subscription",
+                isSvg: false,
+                iconData: Icons.stars,
+                iconColor: Colors.amber,
+                onTap: () {
+                  Get.to(
+                    () => const SubscriptionScreen(),
+                    transition: Transition.rightToLeft,
+                  );
+                },
+              ),
+              _buildMenuItem(
                 iconAsset: AssetsConstants.icons.favourite,
                 title: "Favourite",
                 onTap: () {
@@ -494,6 +508,7 @@ class ProfileScreen extends StatelessWidget {
     required String title,
     required VoidCallback onTap,
     bool isSvg = true,
+    IconData? iconData,
     Color? iconColor,
     Color? titleColor,
   }) {
@@ -501,20 +516,22 @@ class ProfileScreen extends StatelessWidget {
       children: [
         ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: isSvg
-              ? AppSvg(
-                  asset: iconAsset,
-                  color: iconColor ?? AppColors.primaryWhite,
-                  width: 24,
-                  height: 24,
-                )
-              : Image.asset(
-                  iconAsset,
-                  color: iconColor ?? AppColors.primaryWhite,
-                  width: 24,
-                  height: 24,
-                  fit: BoxFit.contain,
-                ),
+          leading: iconData != null
+              ? Icon(iconData, color: iconColor ?? AppColors.primaryWhite, size: 24)
+              : isSvg
+                  ? AppSvg(
+                      asset: iconAsset,
+                      color: iconColor ?? AppColors.primaryWhite,
+                      width: 24,
+                      height: 24,
+                    )
+                  : Image.asset(
+                      iconAsset,
+                      color: iconColor ?? AppColors.primaryWhite,
+                      width: 24,
+                      height: 24,
+                      fit: BoxFit.contain,
+                    ),
           title: Text(
             title,
             style: TextStyle(

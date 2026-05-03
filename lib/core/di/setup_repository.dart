@@ -18,6 +18,7 @@ import '../../features/movie/repositories/movie_repo_impl.dart';
 import '../../features/tv/repositories/live_tv_repo.dart';
 import '../../features/tv/repositories/live_tv_repo_impl.dart';
 
+import '../../features/subscription/repositories/subscription_repo.dart';
 import '../utils/getx_helper.dart';
 
 Future<void> setupRepository() async {
@@ -57,4 +58,6 @@ Future<void> setupRepository() async {
     () => SearchRepoImpl(apiClient: Get.find()),
     fenix: true,
   );
+
+  Get.getOrPutLazy<SubscriptionRepo>(() => SubscriptionRepo(), fenix: true);
 }

@@ -20,6 +20,8 @@ class UserModel {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final int? v;
+  final String? subscriptionStatus;
+  final String? plan;
 
   UserModel({
     this.avatar,
@@ -43,6 +45,8 @@ class UserModel {
     this.createdAt,
     this.updatedAt,
     this.v,
+    this.subscriptionStatus,
+    this.plan,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -76,6 +80,8 @@ class UserModel {
           ? DateTime.parse(json['updatedAt'])
           : null,
       v: json['__v'],
+      subscriptionStatus: json['subscriptionStatus'],
+      plan: json['plan'],
     );
   }
 
@@ -102,6 +108,8 @@ class UserModel {
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
       '__v': v,
+      'subscriptionStatus': subscriptionStatus,
+      'plan': plan,
     };
   }
 }

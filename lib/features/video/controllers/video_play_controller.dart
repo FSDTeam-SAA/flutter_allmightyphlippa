@@ -7,6 +7,7 @@ import 'package:media_kit_video/media_kit_video.dart';
 
 import 'dart:async';
 import '../../movie/controllers/movie_controller.dart';
+import '../../profile/controller/profile_controller.dart';
 import '../../series/controllers/series_controller.dart';
 import '../../series/models/single_series_response_model.dart';
 import '../../../core/services/auth_storage_service.dart';
@@ -17,6 +18,7 @@ class VideoPlayController extends GetxController {
   MovieController get movieCtrl => Get.find<MovieController>();
   SeriesController get seriesCtrl => Get.find<SeriesController>();
   VideoStatusRepo get videoStatusRepo => Get.find<VideoStatusRepo>();
+  ProfileController get profileCtrl => Get.find<ProfileController>();
 
   late final Player player;
   late final VideoController videoController;
@@ -45,6 +47,11 @@ class VideoPlayController extends GetxController {
   final _updateInterval = const Duration(seconds: 10);
   String? _currentVideoId;
   String? _currentVideoType;
+
+  bool get isSubscribed {
+    final user = profileCtrl.userProfile.value;
+    return user?.subscriptionStatus == 'active' || user?.plan == 'premium';
+  }
 
   @override
   void onInit() {
@@ -300,6 +307,24 @@ class VideoPlayController extends GetxController {
       }
 
       // 2. Open Player (start paused to allow seeking)
+      if (!isSubscribed) {
+        // Limit resolution for non-subscribed users
+        try {
+          await (player.platform as dynamic).setProperty('video-max-height', '480');
+          DPrint.log("Non-subscribed user: limiting quality to 480p");
+        } catch (e) {
+          DPrint.log("Error setting quality limit: $e");
+        }
+      } else {
+        // Reset quality for subscribed users
+        try {
+          await (player.platform as dynamic).setProperty('video-max-height', '0');
+          DPrint.log("Subscribed user: full quality enabled");
+        } catch (e) {
+          DPrint.log("Error resetting quality limit: $e");
+        }
+      }
+
       await player.open(Media(videoUrl), play: false);
 
       if (startPosition > Duration.zero) {

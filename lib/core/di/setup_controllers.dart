@@ -2,6 +2,7 @@ import 'package:flutter_almightyflippa/core/utils/getx_helper.dart';
 import 'package:flutter_almightyflippa/features/movie/controllers/movie_controller.dart';
 import 'package:flutter_almightyflippa/features/profile/controller/profile_controller.dart';
 import 'package:flutter_almightyflippa/features/series/controllers/series_controller.dart';
+import 'package:flutter_almightyflippa/features/subscription/controllers/subscription_controller.dart';
 import 'package:get/get.dart';
 
 import '../../features/search/controllers/search_controller.dart'
@@ -15,4 +16,5 @@ Future<void> setupControllers() async {
   Get.getOrPutLazy(() => SeriesController(), fenix: true);
   Get.getOrPutLazy(() => LiveTvController(), fenix: true);
   Get.getOrPutLazy(() => search_ctrl.SearchController(), fenix: true);
+  Get.getOrPutLazy(() => SubscriptionController(), fenix: true);
 }

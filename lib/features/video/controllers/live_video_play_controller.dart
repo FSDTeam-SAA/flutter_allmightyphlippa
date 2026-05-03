@@ -3,16 +3,23 @@ import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 
+import '../../profile/controller/profile_controller.dart';
 import '../../tv/repositories/live_tv_repo.dart';
 
 class LiveVideoPlayController extends GetxController {
   final _liveTvRepo = Get.find<LiveTvRepo>();
+  final _profileCtrl = Get.find<ProfileController>();
 
   VideoPlayerController? videoPlayerController;
   ChewieController? chewieController;
 
   final isVideoInitialized = false.obs;
   final isLoading = false.obs;
+
+  bool get isSubscribed {
+    final user = _profileCtrl.userProfile.value;
+    return user?.subscriptionStatus == 'active' || user?.plan == 'premium';
+  }
 
   @override
   void onClose() {
@@ -39,7 +46,16 @@ class LiveVideoPlayController extends GetxController {
           debugPrint('Error fetching live TV URL: ${fail.message}');
         },
         (success) async {
-          final playUrl = success.data.playUrl;
+          String playUrl = success.data.playUrl;
+          
+          if (!isSubscribed && playUrl.isNotEmpty) {
+            // Append quality parameter for non-subscribed users
+            // Note: This parameter name might depend on the IPTV server
+            final separator = playUrl.contains('?') ? '&' : '?';
+            playUrl = '$playUrl${separator}quality=low';
+            debugPrint('Non-subscribed user: requesting low quality stream');
+          }
+
           debugPrint('Live TV Play URL: $playUrl');
 
           if (playUrl.isNotEmpty) {
