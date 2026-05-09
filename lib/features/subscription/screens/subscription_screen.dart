@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutx_core/flutx_core.dart';
 import 'package:get/get.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../profile/controller/profile_controller.dart';
 import '../controllers/subscription_controller.dart';
@@ -50,6 +53,10 @@ class SubscriptionScreen extends StatelessWidget {
 
               return Column(
                 children: controller.products.map((product) {
+                  DPrint.log("product price ${product.price}");
+                  DPrint.log("product description ${product.description}");
+                  DPrint.log("product id ${product.id}");
+                  DPrint.log("product title ${product.title}");
                   return _buildSubscriptionCard(
                     product,
                     controller,
@@ -88,7 +95,7 @@ class SubscriptionScreen extends StatelessWidget {
   }
 
   Widget _buildSubscriptionCard(
-    dynamic product,
+    ProductDetails product,
     SubscriptionController controller,
     ProfileController profileController,
   ) {
@@ -96,20 +103,53 @@ class SubscriptionScreen extends StatelessWidget {
         profileController.userProfile.value?.subscriptionStatus == 'active';
 
     return GestureDetector(
-      onTap: isActive ? null : () => controller.subscribe(product),
+      onTap: isActive
+          ? () => Get.snackbar(
+              'Already Subscribed',
+              'You are currently on this plan.',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.white,
+              colorText: Colors.black,
+            )
+          : () => controller.subscribe(product),
       child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(24.0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white.withOpacity(0.5), width: 1),
+          color: isActive ? AppColors.red.withOpacity(0.1) : Colors.transparent,
+          border: Border.all(
+            color: isActive ? AppColors.red : Colors.white.withOpacity(0.5),
+            width: isActive ? 2 : 1,
+          ),
         ),
         child: Column(
           children: [
+            if (isActive)
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.red,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text(
+                  'CURRENT PLAN',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             RichText(
               text: TextSpan(
                 children: [
                   TextSpan(
-                    text: product.price, // Assuming this is "$2.99"
+                    text: product.price,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 36,

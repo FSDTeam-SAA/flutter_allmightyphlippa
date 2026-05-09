@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
@@ -10,13 +11,13 @@ import '../repositories/subscription_repo.dart';
 class SubscriptionController extends GetxController {
   final _subscriptionRepo = Get.find<SubscriptionRepo>();
   final InAppPurchase _inAppPurchase = InAppPurchase.instance;
-  
+
   late StreamSubscription<List<PurchaseDetails>> _subscription;
-  
+
   final products = <ProductDetails>[].obs;
   final isLoading = false.obs;
   final isStoreAvailable = false.obs;
-  
+
   // Product IDs from App Store Connect
   static const String _monthlySubscriptionId = 'month_subscription';
 
@@ -41,7 +42,7 @@ class SubscriptionController extends GetxController {
   Future<void> initStore() async {
     final bool available = await _inAppPurchase.isAvailable();
     isStoreAvailable.value = available;
-    
+
     if (available) {
       await fetchProducts();
     }
@@ -51,12 +52,13 @@ class SubscriptionController extends GetxController {
     isLoading.value = true;
     try {
       const Set<String> _kIds = <String>{_monthlySubscriptionId};
-      final ProductDetailsResponse response = await _inAppPurchase.queryProductDetails(_kIds);
-      
+      final ProductDetailsResponse response = await _inAppPurchase
+          .queryProductDetails(_kIds);
+
       if (response.notFoundIDs.isNotEmpty) {
         debugPrint('Products not found: ${response.notFoundIDs}');
       }
-      
+
       products.assignAll(response.productDetails);
     } catch (e) {
       debugPrint('Error fetching products: $e');
@@ -80,29 +82,62 @@ class SubscriptionController extends GetxController {
     }
   }
 
-  Future<void> _listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) async {
+  Future<void> _listenToPurchaseUpdated(
+    List<PurchaseDetails> purchaseDetailsList,
+  ) async {
     for (var purchaseDetails in purchaseDetailsList) {
+      debugPrint('Purchase Update: ID=${purchaseDetails.productID}, Status=${purchaseDetails.status}');
+      
       if (purchaseDetails.status == PurchaseStatus.pending) {
         isLoading.value = true;
       } else {
         if (purchaseDetails.status == PurchaseStatus.error) {
           debugPrint('Purchase Error: ${purchaseDetails.error}');
           isLoading.value = false;
-          Get.snackbar('Error', 'Purchase failed: ${purchaseDetails.error?.message}');
+          Get.snackbar(
+            'Error',
+            'Purchase failed: ${purchaseDetails.error?.message ?? "Unknown error"}',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        } else if (purchaseDetails.status == PurchaseStatus.canceled) {
+          debugPrint('Purchase Canceled by User');
+          isLoading.value = false;
+          Get.snackbar(
+            'Canceled',
+            'Payment was canceled.',
+            snackPosition: SnackPosition.BOTTOM,
+          );
         } else if (purchaseDetails.status == PurchaseStatus.purchased ||
-                   purchaseDetails.status == PurchaseStatus.restored) {
-          
+            purchaseDetails.status == PurchaseStatus.restored) {
+          debugPrint('Purchase Success/Restored. Verifying...');
           // Verify with backend
           bool verified = await _verifyPurchase(purchaseDetails);
-          
+
           if (verified) {
-            Get.snackbar('Success', 'Subscription active!');
+            Get.snackbar(
+              'Success',
+              'Subscription active!',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.green,
+              colorText: Colors.white,
+            );
             // Refresh profile to update UI with new subscription status
             Get.find<ProfileController>().refreshProfile();
+          } else {
+            Get.snackbar(
+              'Verification Failed',
+              'We could not verify your purchase. Please contact support.',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.orange,
+              colorText: Colors.white,
+            );
           }
         }
-        
+
         if (purchaseDetails.pendingCompletePurchase) {
+          debugPrint('Completing purchase for ${purchaseDetails.productID}');
           await _inAppPurchase.completePurchase(purchaseDetails);
         }
         isLoading.value = false;
@@ -113,16 +148,16 @@ class SubscriptionController extends GetxController {
   Future<bool> _verifyPurchase(PurchaseDetails purchaseDetails) async {
     // 1. Get receipt data
     String? receiptData;
-    
+
     if (Platform.isIOS) {
       receiptData = purchaseDetails.verificationData.serverVerificationData;
     }
-    
+
     if (receiptData == null) return false;
 
     // 2. Send to backend
     final result = await _subscriptionRepo.verifyApplePurchase(receiptData);
-    
+
     return result.fold(
       (failure) {
         debugPrint('Backend Verification Failed: ${failure.message}');
