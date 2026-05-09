@@ -24,8 +24,12 @@ class GenreRepoImpl implements GenreRepo {
     return _apiClient.post(
       endpoint: ApiConstants.genre.getCategories,
       data: requestData.toJson(),
-      fromJsonT: (json) =>
-          (json as List).map((item) => GenreModel.fromJson(item)).toList(),
+      fromJsonT: (json) {
+        if (json is List) {
+          return json.map((item) => GenreModel.fromJson(item)).toList();
+        }
+        return <GenreModel>[];
+      },
     );
   }
 
@@ -43,7 +47,8 @@ class GenreRepoImpl implements GenreRepo {
       endpoint: ApiConstants.genre.getCategoriesByType(id),
       data: requestData.toJson(),
       fromJsonT: (json) {
-        final List list = json as List;
+        if (json is! List) return <T>[];
+        final List list = json;
         if (type == ServerType.series) {
           return list.map((item) => SeriesResponesModel.fromJson(item)).toList()
               as List<T>;
